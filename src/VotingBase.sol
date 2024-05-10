@@ -1,15 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "./VotingToken.sol";
 
-contract VotingContract is ERC20, Ownable {
+contract VotingBase is ERC721URIStorage, Ownable {
+    /**
+     * @dev 计数器，用于createProposal时候新增id
+     */
     uint256 public _tokenIds;
 
+    /**
+     * @dev 用于存储 DAO Token 合约实例的私有变量。
+     */
+    VotingToken private _voting_Token;
+
+    //提案的结构体
     struct Proposal {
         uint256 id;
         string name;
@@ -19,11 +27,18 @@ contract VotingContract is ERC20, Ownable {
         uint256 againstCount;
         bool passed;
     }
+
+    //member数组
     address[] public members;
 
     mapping(uint256 => Proposal) public proposals;
-    mapping(address => uint256) public memberVoteToken; // 成员到其投票代币的映射
+
+    // 成员到其投票代币的映射
+    mapping(address => uint256) public memberVoteToken;
+
+    //用于检查是否投票，第一个uit指的是Proposal的id
     mapping(uint256 => mapping(address => bool)) public voted;
+
     mapping(address => bool) public isMember;
 
     event MemberAdded(address member);
@@ -31,22 +46,27 @@ contract VotingContract is ERC20, Ownable {
     event ProposalCreated(uint256 proposalId, string name, address creator);
     event Voted(uint256 proposalId, address voter, bool support);
 
+    // 只有member成员才能调用
     modifier onlyMember() {
         require(isMember[msg.sender], "Not a team member");
         _;
     }
 
-    constructor() ERC20("VotingDonor", "VOTE") Ownable(msg.sender) {}
+    constructor(VotingToken token) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
+        _voting_Token = token;
+    }
 
-    //新增团队成员
+    //新增成员
     function addMember(address _member) public onlyOwner {
+        require(!isMember[_member], "Member already exists"); // 确保成员地址不是重复的
         isMember[_member] = true;
         members.push(_member);
         emit MemberAdded(_member);
     }
 
-    //移除团队成员
+    //删除成员
     function removeMember(address _member) public onlyOwner {
+        require(isMember[_member], "Address is not a member"); // 确保该地址是一个成员
         isMember[_member] = false;
         for (uint256 i = 0; i < members.length; i++) {
             if (members[i] == _member) {
@@ -58,7 +78,10 @@ contract VotingContract is ERC20, Ownable {
         emit MemberRemoved(_member);
     }
 
-    //创建提案
+    /**
+     * @dev 创建提案
+     * @dev 每创建提案就创建100枚token，分给每个人
+     */
     function createProposal(string memory name) public onlyMember {
         uint256 proposalId = _tokenIds;
         _tokenIds++;
@@ -73,26 +96,37 @@ contract VotingContract is ERC20, Ownable {
             passed: false
         });
 
-        distributeTokens();
+        _mint(msg.sender, proposalId);
+        // _setTokenURI(proposalId, tokenURI);
+
+        distributeTokens(); 
         emit ProposalCreated(proposalId, name, msg.sender);
     }
 
-    // 向所有成员分发代币
-    function distributeTokens() public onlyOwner {
-        //创建代币
-        _mint(address(this), 100 * 10 ** uint256(decimals()));
 
+    /**
+     *@dev 创建100个token，分发给每个成员一枚
+     */
+    function distributeTokens() public onlyMember {
+        _voting_Token.mint(address(this),100 * 10 ** uint256(_voting_Token.decimals()));
         for (uint256 i = 0; i < members.length; i++) {
             address member = members[i];
             if (isMember[member]) {
-                _transfer(address(this), member, 1 * 10 ** uint256(decimals())); // 给每个成员发放1个代币
+                _voting_Token.transfer(
+                    member,
+                    1 * 10 ** uint256(_voting_Token.decimals())
+                );
                 memberVoteToken[member] += 1;
             }
         }
     }
 
-    //投票
+    /**
+     *@dev 投票
+     *@dev 每次投票成功后就销毁一枚token
+     */
     function vote(uint256 proposalId, bool support) public onlyMember {
+        //只能投票一次
         require(!voted[proposalId][msg.sender], "Already voted");
         require(memberVoteToken[msg.sender] > 0, "Not enough voting tokens");
         //require(proposals[proposalId].creator != msg.sender, "Creator cannot vote on their own proposal"); //创建者不能投票
@@ -106,13 +140,17 @@ contract VotingContract is ERC20, Ownable {
             proposals[proposalId].againstCount += 1;
         }
         // 销毁投票所使用的代币
-        _burn(msg.sender, 1 * 10 ** uint256(decimals()));
+        _voting_Token.burn( msg.sender,1 * 10 ** uint256(_voting_Token.decimals()));
 
         checkProposal(proposalId);
 
         emit Voted(proposalId, msg.sender, support);
     }
 
+    /**
+     *@dev 检查结果
+     *@dev 有过一半以上的同意，则提案就通过
+     */
     function checkProposal(uint256 proposalId) private {
         Proposal storage proposal = proposals[proposalId];
         //总票数
@@ -124,7 +162,6 @@ contract VotingContract is ERC20, Ownable {
             proposal.passed = false;
         }
     }
-
 
     // 获取所有提案的ID列表
     function getAllProposalIds() public view returns (uint256[] memory) {
@@ -141,11 +178,15 @@ contract VotingContract is ERC20, Ownable {
         return p.passed;
     }
 
-
     // 获取提案详细信息
-    function getProposal(uint256 proposalId) public view returns (Proposal memory) {
+    function getProposal(
+        uint256 proposalId
+    ) public view returns (Proposal memory) {
         return proposals[proposalId];
     }
 
-
+    // 获取指定地址的VotingToken余额
+    function getTokenBalance(address member) public view returns (uint256) {
+        return _voting_Token.balanceOf(member);
+    }
 }
