@@ -125,9 +125,27 @@ contract VotingContract is ERC20, Ownable {
         }
     }
 
+
+    // 获取所有提案的ID列表
+    function getAllProposalIds() public view returns (uint256[] memory) {
+        uint256[] memory ids = new uint256[](_tokenIds);
+        for (uint256 i = 0; i < _tokenIds; i++) {
+            ids[i] = i;
+        }
+        return ids;
+    }
+
     //检查项目是否通过
     function checkPass(uint256 proposalId) public view returns (bool) {
         Proposal storage p = proposals[proposalId];
         return p.passed;
     }
+
+
+    // 获取提案详细信息
+    function getProposal(uint256 proposalId) public view returns (Proposal memory) {
+        return proposals[proposalId];
+    }
+
+
 }
