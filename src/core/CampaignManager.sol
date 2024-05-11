@@ -65,22 +65,23 @@ contract CampaignManager {
         s_campaignIdIdx[id] = s_campaigns.length - 1;
     }
 
-    function removeCampaign(uint256 campaignId) public {
-        bool campaignExist = s_campaignIdExists[campaignId];
-        if (campaignExist == false) {
+    function removeCampaign(uint256 deleteCampaignId) public {
+        if (hasCampaign(deleteCampaignId) == false) {
             return;
         }
 
-        s_campaignIdExists[campaignId] = false;
+        s_campaignIdExists[deleteCampaignId] = false;
 
-        uint256 idx = s_campaignIdIdx[campaignId];
-        uint256 length = s_campaigns.length;
-        if (idx < length) {
-            s_campaigns[idx] = s_campaigns[length - 1];
+        uint256 findIndex = s_campaignIdIdx[deleteCampaignId];
+        uint256 currentLength = s_campaigns.length;
+        if (findIndex < currentLength) {
+            uint256 lastId = s_campaigns[currentLength - 1].id;
+            s_campaigns[findIndex] = s_campaigns[currentLength - 1];
+            s_campaignIdIdx[lastId] = findIndex;
             s_campaigns.pop();
         }
         // 让索引失效
-        s_campaignIdIdx[campaignId] = INVALID_INDEX;
+        s_campaignIdIdx[deleteCampaignId] = INVALID_INDEX;
     }
 
     function hasCampaign(uint256 id) public view returns (bool) {
