@@ -5,9 +5,16 @@ import "../libraries/DataType.sol";
 
 contract CampaignManager {
     /**
-     * @dev 规定 uint256 的最大值是非法活动id
+     * @dev array最多存放 type(uint256).max - 1 个元素
+     * 最后一个索引是 type(uint256).max - 2
+     * CampaignManager将 索引为 type(uint256).max - 2 的设置为非法活动
+     * s_campaignIdIdx 返回的索引是 type(uint256).max - 2 表示该活动已被删除
      */
-    uint256 private constant INVALID_INDEX = type(uint256).max;
+    uint256 private constant INVALID_INDEX = type(uint256).max - 2;
+    /**
+     * 最多支持 type(uint256).max - 3 == INVALID_INDEX 个活动
+     */
+    uint256 private constant CAPACITY = type(uint256).max - 3;
 
     /**
      * @dev 活动是否发起
@@ -30,7 +37,7 @@ contract CampaignManager {
      * 最多支持 type(uint256).max - 1 个活动
      */
     function capacity() public pure returns (uint256) {
-        return type(uint256).max - 1;
+        return CAPACITY;
     }
 
     function size() public view returns (uint256) {
