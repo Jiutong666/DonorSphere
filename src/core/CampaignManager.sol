@@ -4,7 +4,10 @@ pragma solidity ^0.8.0;
 import "../libraries/DataType.sol";
 
 contract CampaignManager {
-    constructor() {}
+    /**
+     * @dev 规定 uint256 的最大值是非法活动id
+     */
+    uint256 private constant INVALID_INDEX = type(uint256).max;
 
     /**
      * @dev 活动是否发起
@@ -20,12 +23,7 @@ contract CampaignManager {
      */
     mapping(uint256 campaignId => uint256 index) private s_campaignIdIdx;
 
-    /**
-     * 规定 uint256 的最大值是非法活动id
-     */
-    function INVALID_INDEX() public pure returns (uint256) {
-        return type(uint256).max;
-    }
+    constructor() {}
 
     /**
      * CampaignManager的最大容量
@@ -43,6 +41,7 @@ contract CampaignManager {
         return s_campaigns.length == 0;
     }
 
+    // TODO: 直接传calldata类型的id, beginTime等字段会不会比传结构体更节约gas?
     function addCampaign(DataType.CampaignInfo memory info) public {
         uint256 id = info.id;
         require(id != 0, "invalid campaign id");
@@ -74,7 +73,7 @@ contract CampaignManager {
             s_campaigns.pop();
         }
         // 让索引失效
-        s_campaignIdIdx[campaignId] = INVALID_INDEX();
+        s_campaignIdIdx[campaignId] = INVALID_INDEX;
     }
 
     function hasCampaign(uint256 id) public view returns (bool) {
