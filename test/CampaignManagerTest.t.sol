@@ -94,7 +94,7 @@ contract TestCampaignManager is Test {
             manager.addCampaign(info1);
             assertEq(manager.size(), 1);
 
-            vm.expectRevert("duplicate campaign id");
+            vm.expectRevert("campaign already exists");
             manager.addCampaign(info1);
             assertEq(manager.size(), 1);
         }
@@ -103,7 +103,7 @@ contract TestCampaignManager is Test {
             manager.addCampaign(info2);
             assertEq(manager.size(), 2);
 
-            vm.expectRevert("duplicate campaign id");
+            vm.expectRevert("campaign already exists");
             manager.addCampaign(info2);
             assertEq(manager.size(), 2);
         }
@@ -112,7 +112,7 @@ contract TestCampaignManager is Test {
             manager.addCampaign(info3);
             assertEq(manager.size(), 3);
 
-            vm.expectRevert("duplicate campaign id");
+            vm.expectRevert("campaign already exists");
             manager.addCampaign(info3);
             assertEq(manager.size(), 3);
         }
