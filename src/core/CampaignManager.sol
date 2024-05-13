@@ -1,90 +1,143 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
 import "../libraries/DataType.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract CampaignManager {
-    /**
-     * @dev array最多存放 type(uint256).max - 1 个元素
-     * 最后一个索引是 type(uint256).max - 2
-     * CampaignManager将 索引为 type(uint256).max - 2 的设置为非法活动
-     * s_campaignIdIdx 返回的索引是 type(uint256).max - 2 表示该活动已被删除
-     */
-    uint256 private constant INVALID_INDEX = type(uint256).max - 2;
-    /**
-     * 最多支持 type(uint256).max - 3 == INVALID_INDEX 个活动
-     */
-    uint256 private constant CAPACITY = type(uint256).max - 3;
-
-    /**
-     * @dev 活动是否发起
-     */
-    mapping(uint256 campaignId => bool exists) private s_campaignIdExists;
+contract CampaignManager is Ownable, ReentrancyGuard {
+    uint256 private constant INVALID_ID = 0;
+    address private constant INVALID_ADDRESS = address(0);
+    // TODO: 用DataFeed获取价格，设置一个minimum donation
+    uint256 private constant MINIMUM_DONATIONS = 0;
     /**
      * @dev 已发起的所有活动记录
      */
-    DataType.CampaignInfo[] private s_campaigns;
+    mapping(uint256 => DataType.CampaignInfo) private s_campaigns;
     /**
-     * @dev 活动 id 在 s_campaigns 的索引
-     * 当 s_campaignIdExists[id] 为 true 时索引有效
+     * @dev 遍历用，记录所有活动id
      */
-    mapping(uint256 campaignId => uint256 index) private s_campaignIdIdx;
+    uint256[] s_campaignIds;
 
-    constructor() {}
+    mapping(address donor => mapping(uint256 campaignId => uint256 amount)) s_donationsOf;
 
-    /**
-     * CampaignManager的最大容量
-     * 最多支持 type(uint256).max - 1 个活动
-     */
-    function capacity() public pure returns (uint256) {
-        return CAPACITY;
+    modifier CampaignNotExists(uint256 id) {
+        require(s_campaigns[id].id == 0, "campaign already exists");
+        _;
+    }
+    modifier CampaignExists(uint256 id) {
+        require(s_campaigns[id].id > 0, "campaign not exist");
+        _;
+    }
+    modifier CampaignInPeriod(uint256 id) {
+        require(
+            block.timestamp >= s_campaigns[id].beginTime,
+            "campaign not start"
+        );
+        require(
+            block.timestamp <= s_campaigns[id].endTime,
+            "campaign has ended"
+        );
+        _;
     }
 
+    modifier onlyCampaignFinish(uint256 id) {
+        require(
+            s_campaigns[id].currentAmount >= s_campaigns[id].targetAmount ||
+                block.timestamp > s_campaigns[id].endTime,
+            "campaign not finished"
+        );
+        _;
+    }
+
+    modifier onlyBeneficiary(uint256 id) {
+        require(
+            msg.sender == s_campaigns[id].beneficiary,
+            "only beneficiary can withdraw"
+        );
+        _;
+    }
+
+    constructor() Ownable(msg.sender) {}
+
     function size() public view returns (uint256) {
-        return s_campaigns.length;
+        return s_campaignIds.length;
     }
 
     function empty() public view returns (bool) {
-        return s_campaigns.length == 0;
-    }
-
-    // TODO: 直接传calldata类型的id, beginTime等字段会不会比传结构体更节约gas?
-    function addCampaign(DataType.CampaignInfo memory info) public {
-        uint256 id = info.id;
-        require(id != 0, "invalid campaign id");
-        require(s_campaignIdExists[id] == false, "duplicate campaign id");
-        require(info.beneficiary != address(0), "invalid beneficiary address");
-        require(info.endTime > info.beginTime, "invalid campaign period");
-        uint256 length = s_campaigns.length;
-        require(
-            length < capacity(),
-            "achieve maximum number of supported campaings"
-        );
-        s_campaignIdExists[id] = true;
-        s_campaigns.push(info);
-        s_campaignIdIdx[id] = s_campaigns.length - 1;
-    }
-
-    function removeCampaign(uint256 deleteCampaignId) public {
-        if (hasCampaign(deleteCampaignId) == false) {
-            return;
-        }
-
-        s_campaignIdExists[deleteCampaignId] = false;
-
-        uint256 findIndex = s_campaignIdIdx[deleteCampaignId];
-        uint256 currentLength = s_campaigns.length;
-        if (findIndex < currentLength) {
-            uint256 lastId = s_campaigns[currentLength - 1].id;
-            s_campaigns[findIndex] = s_campaigns[currentLength - 1];
-            s_campaignIdIdx[lastId] = findIndex;
-            s_campaigns.pop();
-        }
-        // 让索引失效
-        s_campaignIdIdx[deleteCampaignId] = INVALID_INDEX;
+        return s_campaignIds.length == 0;
     }
 
     function hasCampaign(uint256 id) public view returns (bool) {
-        return s_campaignIdExists[id] == true;
+        return s_campaigns[id].id > 0;
+    }
+
+    // TODO: 直接传calldata类型的id, beginTime等字段会不会比传结构体更节约gas?
+    function addCampaign(
+        DataType.CampaignInfo memory info
+    ) public onlyOwner CampaignNotExists(info.id) {
+        uint256 id = info.id;
+        require(id != INVALID_ID, "invalid camapignment id");
+        require(info.beneficiary != INVALID_ADDRESS, "invalid beneficiary");
+        require(info.creator != INVALID_ADDRESS, "invalid creator");
+        require(info.endTime > info.beginTime, "invalid camapign time");
+        require(info.targetAmount != 0, "invalid target amount");
+        require(bytes(info.name).length != 0, "invalid name");
+        info.currentAmount = 0;
+        s_campaigns[id] = info;
+        s_campaignIds.push(id);
+    }
+
+    // TODO: remove可能有问题，会影响 捐款记录
+    function removeCampaign(
+        uint256 campaignId
+    ) public onlyOwner CampaignExists(campaignId) {
+        uint256 length = s_campaignIds.length;
+        for (uint256 i = 0; i < length; ++i) {
+            if (s_campaignIds[i] == campaignId) {
+                s_campaignIds[i] = s_campaignIds[length - 1];
+                s_campaignIds.pop();
+                break;
+            }
+        }
+
+        delete s_campaigns[campaignId];
+        s_campaigns[campaignId].id = INVALID_ID;
+    }
+
+    function donate(
+        uint256 id
+    ) public payable CampaignExists(id) CampaignInPeriod(id) returns (bool) {
+        require(msg.value > MINIMUM_DONATIONS, "insufficient amount");
+        require(s_campaigns[id].currentAmount <= s_campaigns[id].targetAmount);
+        (bool send, ) = address(this).call{value: msg.value}("");
+        require(send, "failed to send ETH");
+
+        s_campaigns[id].currentAmount += msg.value;
+        // 记录donors
+        s_donationsOf[msg.sender][id] += msg.value;
+        return true;
+    }
+
+    function withdraw(
+        uint256 campaignId
+    )
+        public
+        nonReentrant
+        CampaignExists(campaignId)
+        onlyCampaignFinish(campaignId)
+        onlyBeneficiary(campaignId)
+    {
+        require(
+            s_campaigns[campaignId].donationWithdrawn == false,
+            "donation has been withdrawn"
+        );
+        s_campaigns[campaignId].donationWithdrawn = true;
+
+        uint256 amount = s_campaigns[campaignId].currentAmount;
+        require(amount > 0, "no amoutn to be send");
+        s_campaigns[campaignId].currentAmount = 0;
+
+        (bool send, ) = payable(msg.sender).call{value: amount}("");
+        require(send, "faild to send ETH");
     }
 }
