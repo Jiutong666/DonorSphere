@@ -29,6 +29,9 @@ contract VotingBaseTest is Test {
         vm.stopPrank();
     }
 
+    /**
+     * 测试创建和删除成员
+     */
     function testAddAndRemoveMember() public {
         address member5 = address(5); // 定义一个新的成员地址
 
@@ -63,6 +66,9 @@ contract VotingBaseTest is Test {
         vm.stopPrank();
     }
 
+    /**
+     * 测试创建活动
+     */
     function testProposalCreation() public {
         vm.startPrank(member1);
         votingBase.createProposal(
@@ -85,6 +91,9 @@ contract VotingBaseTest is Test {
         assertFalse(proposal.donationWithdrawn);
     }
 
+    /**
+     * 测试创建活动的时候分配Token
+     */
     function testProposalCreationAndTokenDistribution() public {
         // 设置初始条件
         uint256 initialMemberTokens = votingBase.getTokenBalance(member1);
@@ -120,6 +129,9 @@ contract VotingBaseTest is Test {
         );
     }
 
+    /**
+     * 测试投票
+     */
     function testVoting1() public {
         vm.startPrank(member1);
         votingBase.createProposal(
@@ -190,7 +202,9 @@ contract VotingBaseTest is Test {
         assertFalse(votingBase.checkPass(0)); //结果通过
     }
 
-    //测试不能重复投票
+    /**
+     * 测试不能重复投票
+     */
     function testAlreadyVoting() public {
         // 创建提案
         vm.startPrank(member1);
@@ -214,7 +228,9 @@ contract VotingBaseTest is Test {
         vm.stopPrank();
     }
 
-    //测试投票后是否销毁了token
+    /**
+     * 测试投票后是否销毁了token
+     */
     function testVotingAndTokenBurn() public {
         // 设置初始条件，确保用户有足够的代币
         vm.startPrank(member1);
