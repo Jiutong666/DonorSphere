@@ -11,13 +11,12 @@ contract VotingBase is ERC721URIStorage, Ownable {
     /**
      * @dev 计数器，用于createProposal时候新增id
      */
-    uint256 public _tokenIds;
+    uint256 private _tokenIds;
 
     /**
      * @dev 用于存储 DAO Token 合约实例的私有变量。
      */
     VotingToken private _voting_Token;
-
 
     //member数组
     address[] public members;
@@ -31,7 +30,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
     mapping(uint256 => mapping(address => bool)) public voted;
 
     mapping(address => bool) public isMember;
-    mapping(address => uint256) private memberIndex;  // 新增：成员索引映射
+    mapping(address => uint256) private memberIndex; // 新增：成员索引映射
 
     event MemberAdded(address member);
     event MemberRemoved(address member);
@@ -51,16 +50,16 @@ contract VotingBase is ERC721URIStorage, Ownable {
     }
 
     //添加成员
-    function addMember(address _member) public onlyOwner {
+    function addMember(address _member) external onlyOwner {
         require(!isMember[_member], "Member already exists");
         isMember[_member] = true;
         members.push(_member);
-        memberIndex[_member] = members.length - 1;  // 更新索引映射
+        memberIndex[_member] = members.length - 1; // 更新索引映射
         emit MemberAdded(_member);
     }
 
     //删除成员
-    function removeMember(address _member) public onlyOwner {
+    function removeMember(address _member) external onlyOwner {
         require(isMember[_member], "Address is not a member");
         isMember[_member] = false;
         uint256 lastIndex = members.length - 1;
@@ -75,7 +74,6 @@ contract VotingBase is ERC721URIStorage, Ownable {
         emit MemberRemoved(_member);
     }
 
-
     /**
      * @dev 创建提案
      * @dev 每创建提案就创建100枚token，分给每个人
@@ -86,7 +84,6 @@ contract VotingBase is ERC721URIStorage, Ownable {
         uint256 beginTime, // 捐款开始时间
         uint256 endTime //捐款结束时间
     ) public onlyMember {
-
         uint256 proposalId = _tokenIds;
         _tokenIds++;
 
@@ -98,7 +95,6 @@ contract VotingBase is ERC721URIStorage, Ownable {
             voteCount: 0,
             againstCount: 0,
             passed: false,
-
             targetAmount: targetAmount,
             currentAmount: 0,
             beginTime: beginTime,
@@ -117,10 +113,13 @@ contract VotingBase is ERC721URIStorage, Ownable {
     /**
      *@dev 创建100个token，分发给每个成员一枚
      */
-    function distributeTokens() public onlyMember {
-        _voting_Token.mint(address(this), 100 * 10**uint256(_voting_Token.decimals()));
+    function distributeTokens() internal onlyMember {
+        _voting_Token.mint(
+            address(this),
+            100 * 10 ** uint256(_voting_Token.decimals())
+        );
 
-        uint256 amount = 1 * 10**uint256(_voting_Token.decimals());
+        uint256 amount = 1 * 10 ** uint256(_voting_Token.decimals());
 
         for (uint256 i = 0; i < members.length; i++) {
             address member = members[i];
@@ -162,7 +161,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
      *@dev 检查结果
      *@dev 有过一半以上的同意，则提案就通过
      */
-    function checkProposal(uint256 proposalId) private {
+    function checkProposal(uint256 proposalId) internal {
         DataType.CampaignInfo storage proposal = proposals[proposalId];
         //总票数
         uint256 totalVotes = proposal.voteCount + proposal.againstCount;
@@ -174,10 +173,8 @@ contract VotingBase is ERC721URIStorage, Ownable {
         }
     }
 
-    
-
     // 获取所有提案的ID列表
-    function getAllProposalIds() public view returns (uint256[] memory) {
+    function getAllProposalIds() external view returns (uint256[] memory) {
         uint256[] memory ids = new uint256[](_tokenIds);
         for (uint256 i = 0; i < _tokenIds; i++) {
             ids[i] = i;
@@ -186,7 +183,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
     }
 
     //检查项目是否通过
-    function checkPass(uint256 proposalId) public view returns (bool) {
+    function checkPass(uint256 proposalId) external view returns (bool) {
         DataType.CampaignInfo storage p = proposals[proposalId];
         return p.passed;
     }
@@ -194,12 +191,12 @@ contract VotingBase is ERC721URIStorage, Ownable {
     // 获取提案详细信息
     function getProposal(
         uint256 proposalId
-    ) public view returns (DataType.CampaignInfo memory) {
+    ) external view returns (DataType.CampaignInfo memory) {
         return proposals[proposalId];
     }
 
     // 获取指定地址的VotingToken余额
-    function getTokenBalance(address member) public view returns (uint256) {
+    function getTokenBalance(address member) external view returns (uint256) {
         return _voting_Token.balanceOf(member);
     }
 }
