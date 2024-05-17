@@ -3,11 +3,21 @@ server:
   port: ":8080"
   mode: "dev"
 
+zap:
+  level: info
+  format: console
+  prefix: "[DonorSphere]"
+  director: logs
+  show-line: true
+  encode-level: LowercaseColorLevelEncoder
+  stacktrace-key: stacktrace
+  log-in-console: true
+
 mysql:
   host: "127.0.0.1"
   port: 3306
-  dbname: "donor-spere"
+  dbname: "donor_sphere"
   user: "root"
-  password: "root"
+  password: "12345678"
   max_open_conns: 200
   max_idle_conns: 50

@@ -3,6 +3,7 @@ package initialize
 import (
 	"backend/global"
 	"fmt"
+	"gorm.io/gorm/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -22,7 +23,9 @@ func Gorm() *gorm.DB {
 		global.APP_CONFIG.MysqlConfig.Dbname,
 	)
 
-	if db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{}); err != nil {
+	if db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	}); err != nil {
 		return nil
 	} else {
 		sqlDB, _ := db.DB()

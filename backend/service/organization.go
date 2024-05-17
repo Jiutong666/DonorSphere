@@ -1,4 +1,4 @@
-package user
+package sevice
 
 import (
 	"backend/model"
