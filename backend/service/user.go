@@ -3,7 +3,7 @@
  * @date: 2024/5/8 01:32
  * @description:
  */
-package user
+package sevice
 
 import (
 	commonreq "backend/model/common/request"
