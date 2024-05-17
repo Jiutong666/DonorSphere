@@ -12,5 +12,11 @@ library DataType {
         uint256 endTime; // 捐款结束时间
         address creator; // 活动发起人
         bool donationWithdrawn; // 捐款是否被提取
+
+        uint256 createTime;  //项目发起时间
+        uint256 voteCount;   //同意项目通过
+        uint256 againstCount; //反对项目通过
+        bool passed;          //检查项目是否通过
+
     }
 }

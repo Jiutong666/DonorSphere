@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./VotingToken.sol";
+import "./libraries/DataType.sol";
 
 contract VotingBase is ERC721URIStorage, Ownable {
     /**
@@ -17,21 +18,11 @@ contract VotingBase is ERC721URIStorage, Ownable {
      */
     VotingToken private _voting_Token;
 
-    //提案的结构体
-    struct Proposal {
-        uint256 id;
-        string name;
-        address creator;
-        uint256 createTime;
-        uint256 voteCount;
-        uint256 againstCount;
-        bool passed;
-    }
 
     //member数组
     address[] public members;
 
-    mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => DataType.CampaignInfo) public proposals;
 
     // 成员到其投票代币的映射
     mapping(address => uint256) public memberVoteToken;
@@ -40,6 +31,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
     mapping(uint256 => mapping(address => bool)) public voted;
 
     mapping(address => bool) public isMember;
+    mapping(address => uint256) private memberIndex;  // 新增：成员索引映射
 
     event MemberAdded(address member);
     event MemberRemoved(address member);
@@ -52,72 +44,88 @@ contract VotingBase is ERC721URIStorage, Ownable {
         _;
     }
 
-    constructor(VotingToken token) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
+    constructor(
+        VotingToken token
+    ) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
         _voting_Token = token;
     }
 
-    //新增成员
+    //添加成员
     function addMember(address _member) public onlyOwner {
-        require(!isMember[_member], "Member already exists"); // 确保成员地址不是重复的
+        require(!isMember[_member], "Member already exists");
         isMember[_member] = true;
         members.push(_member);
+        memberIndex[_member] = members.length - 1;  // 更新索引映射
         emit MemberAdded(_member);
     }
 
     //删除成员
     function removeMember(address _member) public onlyOwner {
-        require(isMember[_member], "Address is not a member"); // 确保该地址是一个成员
+        require(isMember[_member], "Address is not a member");
         isMember[_member] = false;
-        for (uint256 i = 0; i < members.length; i++) {
-            if (members[i] == _member) {
-                members[i] = members[members.length - 1];
-                members.pop();
-                break;
-            }
+        uint256 lastIndex = members.length - 1;
+        uint256 idx = memberIndex[_member];
+        if (idx != lastIndex) {
+            address lastMember = members[lastIndex];
+            members[idx] = lastMember;
+            memberIndex[lastMember] = idx;
         }
+        members.pop();
+        delete memberIndex[_member];
         emit MemberRemoved(_member);
     }
+
 
     /**
      * @dev 创建提案
      * @dev 每创建提案就创建100枚token，分给每个人
      */
-    function createProposal(string memory name) public onlyMember {
+    function createProposal(
+        string memory name,
+        uint256 targetAmount, // 目标金额
+        uint256 beginTime, // 捐款开始时间
+        uint256 endTime //捐款结束时间
+    ) public onlyMember {
+
         uint256 proposalId = _tokenIds;
         _tokenIds++;
 
-        proposals[proposalId] = Proposal({
-            id: proposalId,
-            name: name,
-            creator: msg.sender,
-            createTime: block.timestamp,
+        proposals[proposalId] = DataType.CampaignInfo({
+            id: proposalId, //捐款id
+            name: name, //捐款名字
+            creator: msg.sender, //创建者
+            createTime: block.timestamp, //创建时间
             voteCount: 0,
             againstCount: 0,
-            passed: false
+            passed: false,
+
+            targetAmount: targetAmount,
+            currentAmount: 0,
+            beginTime: beginTime,
+            endTime: endTime,
+            donationWithdrawn: false,
+            beneficiary: address(0)
         });
 
         _mint(msg.sender, proposalId);
         // _setTokenURI(proposalId, tokenURI);
 
-        distributeTokens(); 
+        distributeTokens();
         emit ProposalCreated(proposalId, name, msg.sender);
     }
-
 
     /**
      *@dev 创建100个token，分发给每个成员一枚
      */
     function distributeTokens() public onlyMember {
-        _voting_Token.mint(address(this),100 * 10 ** uint256(_voting_Token.decimals()));
+        _voting_Token.mint(address(this), 100 * 10**uint256(_voting_Token.decimals()));
+
+        uint256 amount = 1 * 10**uint256(_voting_Token.decimals());
+
         for (uint256 i = 0; i < members.length; i++) {
             address member = members[i];
-            if (isMember[member]) {
-                _voting_Token.transfer(
-                    member,
-                    1 * 10 ** uint256(_voting_Token.decimals())
-                );
-                memberVoteToken[member] += 1;
-            }
+            _voting_Token.transfer(member, amount);
+            memberVoteToken[member] += 1;
         }
     }
 
@@ -140,7 +148,10 @@ contract VotingBase is ERC721URIStorage, Ownable {
             proposals[proposalId].againstCount += 1;
         }
         // 销毁投票所使用的代币
-        _voting_Token.burn( msg.sender,1 * 10 ** uint256(_voting_Token.decimals()));
+        _voting_Token.burn(
+            msg.sender,
+            1 * 10 ** uint256(_voting_Token.decimals())
+        );
 
         checkProposal(proposalId);
 
@@ -152,7 +163,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
      *@dev 有过一半以上的同意，则提案就通过
      */
     function checkProposal(uint256 proposalId) private {
-        Proposal storage proposal = proposals[proposalId];
+        DataType.CampaignInfo storage proposal = proposals[proposalId];
         //总票数
         uint256 totalVotes = proposal.voteCount + proposal.againstCount;
 
@@ -162,6 +173,8 @@ contract VotingBase is ERC721URIStorage, Ownable {
             proposal.passed = false;
         }
     }
+
+    
 
     // 获取所有提案的ID列表
     function getAllProposalIds() public view returns (uint256[] memory) {
@@ -174,14 +187,14 @@ contract VotingBase is ERC721URIStorage, Ownable {
 
     //检查项目是否通过
     function checkPass(uint256 proposalId) public view returns (bool) {
-        Proposal storage p = proposals[proposalId];
+        DataType.CampaignInfo storage p = proposals[proposalId];
         return p.passed;
     }
 
     // 获取提案详细信息
     function getProposal(
         uint256 proposalId
-    ) public view returns (Proposal memory) {
+    ) public view returns (DataType.CampaignInfo memory) {
         return proposals[proposalId];
     }
 
