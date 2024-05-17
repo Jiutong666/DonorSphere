@@ -77,7 +77,8 @@ contract VotingBaseTest is Test {
             100, //targetAmount
             1653897600, //beginTime
             16999999999, //endTime
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
 
@@ -109,7 +110,8 @@ contract VotingBaseTest is Test {
             100, //targetAmount
             1653897600, //beginTime
             16999999999, //endTime
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
 
@@ -144,7 +146,8 @@ contract VotingBaseTest is Test {
             100,
             1653897600,
             16999999999,
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
 
@@ -189,7 +192,8 @@ contract VotingBaseTest is Test {
             100,
             1653897600,
             16999999999,
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
 
         votingBase.createProposal(
@@ -197,7 +201,8 @@ contract VotingBaseTest is Test {
             100,
             1653897600,
             16999999999,
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
 
@@ -245,7 +250,8 @@ contract VotingBaseTest is Test {
             100,
             1653897600,
             16999999999,
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
 
@@ -272,7 +278,8 @@ contract VotingBaseTest is Test {
             100,
             1653897600,
             16999999999,
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
 
@@ -316,7 +323,8 @@ contract VotingBaseTest is Test {
             100,
             1653897600,
             16999999999,
-            7 days //duration
+            7 days, //duration
+            address(0)
         );
         vm.stopPrank();
         // 成员投票

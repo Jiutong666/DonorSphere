@@ -84,7 +84,8 @@ contract VotingBase is ERC721URIStorage, Ownable {
         uint256 targetAmount, // 目标金额
         uint256 beginTime, // 捐款开始时间
         uint256 endTime, //捐款结束时间
-        uint256 duration
+        uint256 duration,
+        address beneficiary // 受益人
     ) public onlyMember {
         uint256 proposalId = _tokenIds;
         _tokenIds++;
@@ -102,7 +103,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
             beginTime: beginTime,
             endTime: endTime,
             donationWithdrawn: false,
-            beneficiary: address(0)
+            beneficiary: beneficiary
         });
 
         proposalEndTimes[proposalId] = block.timestamp + duration;
