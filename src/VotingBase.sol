@@ -31,6 +31,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
 
     mapping(address => bool) public isMember;
     mapping(address => uint256) private memberIndex; // 新增：成员索引映射
+    mapping(uint256 => uint256) public proposalEndTimes; // 新增：提案结束时间
 
     event MemberAdded(address member);
     event MemberRemoved(address member);
@@ -82,7 +83,8 @@ contract VotingBase is ERC721URIStorage, Ownable {
         string memory name,
         uint256 targetAmount, // 目标金额
         uint256 beginTime, // 捐款开始时间
-        uint256 endTime //捐款结束时间
+        uint256 endTime, //捐款结束时间
+        uint256 duration
     ) public onlyMember {
         uint256 proposalId = _tokenIds;
         _tokenIds++;
@@ -102,6 +104,8 @@ contract VotingBase is ERC721URIStorage, Ownable {
             donationWithdrawn: false,
             beneficiary: address(0)
         });
+
+        proposalEndTimes[proposalId] = block.timestamp + duration;
 
         _mint(msg.sender, proposalId);
         // _setTokenURI(proposalId, tokenURI);
@@ -152,21 +156,25 @@ contract VotingBase is ERC721URIStorage, Ownable {
             1 * 10 ** uint256(_voting_Token.decimals())
         );
 
-        checkProposal(proposalId);
-
         emit Voted(proposalId, msg.sender, support);
     }
 
     /**
      *@dev 检查结果
      *@dev 有过一半以上的同意，则提案就通过
+     *@dev 同意就创建Campaign
      */
-    function checkProposal(uint256 proposalId) internal {
+    function checkProposal(uint256 proposalId) public {
+        require(
+            block.timestamp >= proposalEndTimes[proposalId],
+            "Voting period has not ended yet"
+        );
+
         DataType.CampaignInfo storage proposal = proposals[proposalId];
-        //总票数
         uint256 totalVotes = proposal.voteCount + proposal.againstCount;
 
         if (proposal.voteCount > totalVotes / 2) {
+            // 同意就创建Campaign
             proposal.passed = true;
         } else {
             proposal.passed = false;
@@ -184,6 +192,10 @@ contract VotingBase is ERC721URIStorage, Ownable {
 
     //检查项目是否通过
     function checkPass(uint256 proposalId) external view returns (bool) {
+        require(
+            block.timestamp >= proposalEndTimes[proposalId],
+            "Voting period has not ended yet"
+        );
         DataType.CampaignInfo storage p = proposals[proposalId];
         return p.passed;
     }

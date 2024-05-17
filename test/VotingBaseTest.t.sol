@@ -35,28 +35,28 @@ contract VotingBaseTest is Test {
     function testAddAndRemoveMember() public {
         address member5 = address(5); // 定义一个新的成员地址
 
-        // 添加成员4
+        // 添加成员5
         vm.startPrank(owner);
         votingBase.addMember(member5);
         assertTrue(
             votingBase.isMember(member5),
-            "Member4 should be added as a member"
+            "Member5 should be added as a member"
         );
 
         // 确认已添加
         bool isMember = votingBase.isMember(member5);
-        assertEq(isMember, true, "Member4 should be recognized as a member");
+        assertEq(isMember, true, "Member5 should be recognized as a member");
 
         // 尝试重复添加相同成员应触发错误
         vm.expectRevert("Member already exists");
         votingBase.addMember(member5);
 
-        // 移除成员4
+        // 移除成员5
         votingBase.removeMember(member5);
         assertEq(
             votingBase.isMember(member5),
             false,
-            "Member4 should no longer be a member"
+            "Member5 should no longer be a member"
         );
 
         // 尝试移除已经被移除的成员应触发错误
@@ -67,18 +67,21 @@ contract VotingBaseTest is Test {
     }
 
     /**
-     * 测试创建活动
+     * 测试创建提案
      */
     function testProposalCreation() public {
+        // 成员1创建提案
         vm.startPrank(member1);
         votingBase.createProposal(
             "Improve Voting System",
             100, //targetAmount
             1653897600, //beginTime
-            16999999999 //endTime
+            16999999999, //endTime
+            7 days //duration
         );
         vm.stopPrank();
 
+        // 获取提案信息并进行基本验证
         DataType.CampaignInfo memory proposal = votingBase.getProposal(0);
         assertEq(proposal.name, "Improve Voting System");
         assertEq(proposal.creator, member1);
@@ -92,7 +95,7 @@ contract VotingBaseTest is Test {
     }
 
     /**
-     * 测试创建活动的时候分配Token
+     * 测试创建提案时分配Token
      */
     function testProposalCreationAndTokenDistribution() public {
         // 设置初始条件
@@ -105,7 +108,8 @@ contract VotingBaseTest is Test {
             "Improve Voting System777",
             100, //targetAmount
             1653897600, //beginTime
-            16999999999 //endTime
+            16999999999, //endTime
+            7 days //duration
         );
         vm.stopPrank();
 
@@ -133,15 +137,18 @@ contract VotingBaseTest is Test {
      * 测试投票
      */
     function testVoting1() public {
+        // 创建提案
         vm.startPrank(member1);
         votingBase.createProposal(
             "Improve Voting System 1",
             100,
             1653897600,
-            16999999999
+            16999999999,
+            7 days //duration
         );
         vm.stopPrank();
 
+        // 成员投票
         vm.startPrank(member1);
         votingBase.vote(0, true); // member1 投支持票
         vm.stopPrank();
@@ -154,33 +161,47 @@ contract VotingBaseTest is Test {
         votingBase.vote(0, false); // member3 投反对票
         vm.stopPrank();
 
+        // 获取提案信息并进行基本验证
         DataType.CampaignInfo memory proposal = votingBase.getProposal(0);
         assertEq(proposal.voteCount, 1); //一个赞成票
-        assertEq(proposal.againstCount, 2); //两个反对成票
-        assertFalse(votingBase.checkPass(0)); //结果没通过
+        assertEq(proposal.againstCount, 2); //两个反对票
+
+        // 模拟时间流逝
+        vm.warp(block.timestamp + 8 days);
+
+        // 检查投票结果
+        vm.startPrank(member1);
+        votingBase.checkProposal(0);
+        vm.stopPrank();
+
+        // 断言：结果没通过
+        assertFalse(votingBase.checkPass(0));
     }
 
     /**
-     * 创建两个活动，对第二个活动投票
+     * 创建两个提案，对第二个提案投票
      */
     function testVoting2() public {
+        // 创建提案
         vm.startPrank(member1);
         votingBase.createProposal(
             "Improve Voting System 2",
             100,
             1653897600,
-            16999999999
+            16999999999,
+            7 days //duration
         );
 
         votingBase.createProposal(
             "Improve Voting System 3",
             100,
             1653897600,
-            16999999999
+            16999999999,
+            7 days //duration
         );
-
         vm.stopPrank();
 
+        // 成员投票
         vm.startPrank(member1);
         votingBase.vote(1, true); // member1 投支持票
         vm.stopPrank();
@@ -193,13 +214,24 @@ contract VotingBaseTest is Test {
         votingBase.vote(1, false); // member3 投反对票
         vm.stopPrank();
 
+        // 获取提案信息并进行基本验证
         DataType.CampaignInfo memory proposal = votingBase.getProposal(1);
         assertEq(proposal.voteCount, 2); //两个赞成票
         assertEq(proposal.againstCount, 1); //一个反对票
-        assertTrue(votingBase.checkPass(1)); //结果通过
 
-        //第一个活动
-        assertFalse(votingBase.checkPass(0)); //结果通过
+        // 模拟时间流逝
+        vm.warp(block.timestamp + 8 days);
+
+        // 检查投票结果
+        vm.startPrank(member1);
+        votingBase.checkProposal(1);
+        vm.stopPrank();
+
+        // 断言：结果通过
+        assertTrue(votingBase.checkPass(1));
+
+        // 检查第一个提案
+        assertFalse(votingBase.checkPass(0)); //结果没通过
     }
 
     /**
@@ -212,7 +244,8 @@ contract VotingBaseTest is Test {
             "Improve Voting System",
             100,
             1653897600,
-            16999999999
+            16999999999,
+            7 days //duration
         );
         vm.stopPrank();
 
@@ -238,7 +271,8 @@ contract VotingBaseTest is Test {
             "Improve Voting System",
             100,
             1653897600,
-            16999999999
+            16999999999,
+            7 days //duration
         );
         vm.stopPrank();
 
@@ -268,5 +302,37 @@ contract VotingBaseTest is Test {
             initialTotalSupply - 1 * 10 ** uint256(votingToken.decimals()),
             "Total supply should decrease by 1 token"
         );
+    }
+
+
+    /**
+     * 测试在投票期未结束前查看投票结果
+     */
+    function testCheckProposalBeforeEnd() public {
+        // 创建提案
+        vm.startPrank(member1);
+        votingBase.createProposal(
+            "Test Proposal",
+            100,
+            1653897600,
+            16999999999,
+            7 days //duration
+        );
+        vm.stopPrank();
+        // 成员投票
+        vm.startPrank(member1);
+        votingBase.vote(0, true);
+        vm.stopPrank();
+
+
+        // 模拟时间流逝
+        vm.warp(block.timestamp + 6 days);
+
+        // 尝试在投票期未结束前查看结果，应抛出错误
+        vm.expectRevert("Voting period has not ended yet");
+        votingBase.checkProposal(0);
+
+        vm.expectRevert("Voting period has not ended yet");
+        votingBase.checkPass(0);
     }
 }
