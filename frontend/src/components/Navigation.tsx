@@ -1,6 +1,6 @@
 import { Image, Link, Navbar, NavbarBrand, NavbarContent, NavbarItem } from '@nextui-org/react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
+import WalletConnect from './WalletConnect';
 
 export default function Navigation() {
   return (
@@ -19,7 +19,7 @@ export default function Navigation() {
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <ConnectButton showBalance={false} />
+          <WalletConnect />
         </NavbarItem>
       </NavbarContent>
     </Navbar>
