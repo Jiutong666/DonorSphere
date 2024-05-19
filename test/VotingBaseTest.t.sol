@@ -193,7 +193,7 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            address(0)
+            makeAddr("beneficiary")
         );
 
         votingBase.createProposal(
@@ -202,7 +202,7 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            address(0)
+            makeAddr("beneficiary")
         );
         vm.stopPrank();
 
@@ -311,7 +311,6 @@ contract VotingBaseTest is Test {
         );
     }
 
-
     /**
      * 测试在投票期未结束前查看投票结果
      */
@@ -331,7 +330,6 @@ contract VotingBaseTest is Test {
         vm.startPrank(member1);
         votingBase.vote(0, true);
         vm.stopPrank();
-
 
         // 模拟时间流逝
         vm.warp(block.timestamp + 6 days);

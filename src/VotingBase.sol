@@ -185,6 +185,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         if (proposal.voteCount > totalVotes / 2) {
             // 同意就创建Campaign
             proposal.passed = true;
+            _manager.addCampaign(proposal);
         } else {
             proposal.passed = false;
         }
