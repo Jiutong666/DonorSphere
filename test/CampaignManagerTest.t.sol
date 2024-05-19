@@ -65,6 +65,27 @@ contract TestCampaignManager is Test {
         assertEq(manager.empty(), false);
     }
 
+    function testHasCampaign() public {
+        assertEq(manager.hasCampaign(info1.id), false);
+
+        manager.addCampaign(info1);
+        assertEq(manager.hasCampaign(info1.id), true);
+
+        assertEq(manager.hasCampaign(info2.id), false);
+
+        manager.addCampaign(info2);
+        assertEq(manager.hasCampaign(info2.id), true);
+    }
+
+    function testAddCampaignSuccess() public {
+        manager.addCampaign(info1);
+        assertEq(manager.hasCampaign(info1.id), true);
+        manager.addCampaign(info2);
+        assertEq(manager.hasCampaign(info2.id), true);
+        manager.addCampaign(info3);
+        assertEq(manager.hasCampaign(info3.id), true);
+    }
+
     function testAddDifferentCampaign() public {
         uint256 notExistId = 999;
         manager.addCampaign(info1);
@@ -88,6 +109,8 @@ contract TestCampaignManager is Test {
         assertEq(manager.hasCampaign(notExistId), false);
         assertEq(manager.size(), 3);
     }
+
+    function testAddCampaignFailed_InvalidId() public {}
 
     function testAddDuplicateCampaign() public {
         {
