@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 contract CampaignManager is Ownable, ReentrancyGuard {
     uint256 private constant INVALID_ID = 0;
     address private constant INVALID_ADDRESS = address(0);
-    // TODO: 用DataFeed获取价格，设置一个minimum donation
-    uint256 private constant MINIMUM_DONATIONS = 0;
     /**
      * @dev 已发起的所有活动记录
      */
@@ -49,9 +47,9 @@ contract CampaignManager is Ownable, ReentrancyGuard {
         _;
     }
 
-    modifier onlyBeneficiary(uint256 id) {
+    modifier onlyBeneficiary(uint256 id, address beneficiary) {
         require(
-            msg.sender == s_campaigns[id].beneficiary,
+            beneficiary == s_campaigns[id].beneficiary,
             "only beneficiary can withdraw"
         );
         _;
@@ -105,27 +103,25 @@ contract CampaignManager is Ownable, ReentrancyGuard {
     }
 
     function donate(
-        uint256 id
-    ) public payable CampaignExists(id) CampaignInPeriod(id) returns (bool) {
-        require(msg.value > MINIMUM_DONATIONS, "insufficient amount");
+        address donor,
+        uint256 id,
+        uint256 value
+    ) public CampaignExists(id) CampaignInPeriod(id) returns (bool) {
         require(s_campaigns[id].currentAmount <= s_campaigns[id].targetAmount);
-        (bool send, ) = address(this).call{value: msg.value}("");
-        require(send, "failed to send ETH");
-
-        s_campaigns[id].currentAmount += msg.value;
-        // 记录donors
-        s_donationsOf[msg.sender][id] += msg.value;
+        s_campaigns[id].currentAmount += value;
+        s_donationsOf[donor][id] += value;
         return true;
     }
 
-    function withdraw(
-        uint256 campaignId
+    function setWithdrawn(
+        uint256 campaignId,
+        address beneficiary
     )
         public
         nonReentrant
         CampaignExists(campaignId)
         onlyCampaignFinish(campaignId)
-        onlyBeneficiary(campaignId)
+        onlyBeneficiary(campaignId, beneficiary)
     {
         require(
             s_campaigns[campaignId].donationWithdrawn == false,
@@ -136,8 +132,18 @@ contract CampaignManager is Ownable, ReentrancyGuard {
         uint256 amount = s_campaigns[campaignId].currentAmount;
         require(amount > 0, "no amoutn to be send");
         s_campaigns[campaignId].currentAmount = 0;
+    }
 
-        (bool send, ) = payable(msg.sender).call{value: amount}("");
-        require(send, "faild to send ETH");
+    function currentAmount(
+        uint256 campaignId
+    ) public view CampaignExists(campaignId) returns (uint256) {
+        return s_campaigns[campaignId].currentAmount;
+    }
+
+    function DonationOf(
+        address donor,
+        uint256 campaignId
+    ) public view CampaignExists(campaignId) returns (uint256) {
+        return s_donationsOf[donor][campaignId];
     }
 }
