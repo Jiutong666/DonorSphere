@@ -21,7 +21,7 @@ export default function ProjectForm() {
         type="text"
         label="Title"
         labelPlacement="outside"
-        errorMessage="Project enter this field"
+        errorMessage="Please enter this field"
         placeholder="Please enter your project title"
       />
       <Textarea
@@ -29,7 +29,7 @@ export default function ProjectForm() {
         name="description"
         label="Description"
         labelPlacement="outside"
-        errorMessage="Project enter this field"
+        errorMessage="Please enter this field"
         placeholder="Enter your description"
       />
       <Input
@@ -38,7 +38,7 @@ export default function ProjectForm() {
         name="beneficiary"
         label="Beneficiary"
         labelPlacement="outside"
-        errorMessage="Project enter this field"
+        errorMessage="Please enter this field"
         placeholder="Please enter your address"
       />
       <Input
@@ -47,11 +47,11 @@ export default function ProjectForm() {
         label="Target Amount"
         name="targetAmount"
         labelPlacement="outside"
-        errorMessage="Project enter this field"
+        errorMessage="Please enter this field"
         placeholder="Please enter your target amount"
       />
 
-      <DateInput label="End Day" labelPlacement="outside" name="endDate" isRequired />
+      <DateInput label="End Date" labelPlacement="outside" name="endDate" isRequired />
 
       <Button type="submit" className="w-[11rem] bg-[--main-color] text-white font-bold mx-auto">
         Submit
