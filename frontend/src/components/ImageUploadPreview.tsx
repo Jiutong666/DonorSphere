@@ -30,9 +30,13 @@ export const ImageUploadPreview = ({
       <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageChange} />
       <div onClick={handleDivClick}>
         {!imagePreview ? (
-          <Image alt="add" src="/add.svg" width={100} className="rounded-xl border-2" />
+          <Image alt="add" src="/add.svg" width={100} className="rounded-xl border-2  bg-gray-200" />
         ) : (
-          <Image src={imagePreview} alt="Image Preview" className="rounded-2xl border-1 w-[22rem]" />
+          <Image
+            src={imagePreview}
+            alt="Image Preview"
+            className="rounded-2xl border-1 w-[22rem] max-h-[11rem] object-cover overflow-hidden"
+          />
         )}
       </div>
     </div>

@@ -5,7 +5,7 @@ export default function ProjectCardItem({ ...props }: ProjectInfo) {
   return (
     <div className="flex justify-center flex-col items-center">
       <Card className="w-[22rem] h-[25rem] relative group overflow-hidden">
-        <Image alt="clouds" src={props.picture} width={352} height={176} className="object-contain" />
+        <Image alt="clouds" src={props.picture} width={352} height={176} className="object-cover overflow-hidden" />
         <CardBody className="px-[2rem] absolute top-[11rem] z-10 bg-white rounded-xl h-[18rem] transition-all duration-500 ease-in-out group-hover:top-[7rem]">
           <p className="font-semibold text-[1.5rem] overflow-hidden overflow-ellipsis whitespace-nowrap">
             {props.name}
