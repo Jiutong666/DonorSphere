@@ -26,7 +26,7 @@ export const ImageUploadPreview = ({
   };
 
   return (
-    <div className="w-[22rem]">
+    <div className="max-w-[22rem]">
       <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageChange} />
       <div onClick={handleDivClick}>
         {!imagePreview ? (
