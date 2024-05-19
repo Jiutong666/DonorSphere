@@ -8,10 +8,12 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./VotingToken.sol";
 import "./libraries/DataType.sol";
 import "./core/CampaignManager.sol";
+import "./core/PriceConverter.sol";
 
 contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     // TODO: 用DataFeed获取价格，设置一个minimum donation
-    uint256 private _minimum_donations = 0;
+    uint256 private _minimum_donations;
+    PriceConverter private _price;
     /**
      * @dev 计数器，用于createProposal时候新增id
      */
@@ -52,10 +54,14 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     constructor(
-        VotingToken token
+        VotingToken token,
+        uint256 minDonationInUSD,
+        address dataFeddAddr
     ) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
         _voting_Token = token;
         _manager = new CampaignManager();
+        _minimum_donations = minDonationInUSD * 10 ** 18;
+        _price = new PriceConverter(dataFeddAddr);
     }
 
     //添加成员
@@ -223,7 +229,10 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     function donate(uint256 id) public payable nonReentrant {
-        require(msg.value > _minimum_donations, "insufficient amount");
+        require(
+            msg.value >= _price.USD(_minimum_donations),
+            "you need to send more ETH"
+        );
         (bool send, ) = address(this).call{value: msg.value}("");
         require(send, "failed to send ETH");
         _manager.donate(msg.sender, id, msg.value);
