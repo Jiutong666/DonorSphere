@@ -4,10 +4,14 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./VotingToken.sol";
 import "./libraries/DataType.sol";
+import "./core/CampaignManager.sol";
 
-contract VotingBase is ERC721URIStorage, Ownable {
+contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
+    // TODO: 用DataFeed获取价格，设置一个minimum donation
+    uint256 private _minimum_donations = 0;
     /**
      * @dev 计数器，用于createProposal时候新增id
      */
@@ -17,7 +21,10 @@ contract VotingBase is ERC721URIStorage, Ownable {
      * @dev 用于存储 DAO Token 合约实例的私有变量。
      */
     VotingToken private _voting_Token;
-
+    /**
+     * @dev 管理所有已发起的活动
+     */
+    CampaignManager private _manager;
     //member数组
     address[] public members;
 
@@ -48,6 +55,7 @@ contract VotingBase is ERC721URIStorage, Ownable {
         VotingToken token
     ) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
         _voting_Token = token;
+        _manager = new CampaignManager();
     }
 
     //添加成员
@@ -212,4 +220,23 @@ contract VotingBase is ERC721URIStorage, Ownable {
     function getTokenBalance(address member) external view returns (uint256) {
         return _voting_Token.balanceOf(member);
     }
+
+    function donate(uint256 id) public payable nonReentrant {
+        require(msg.value > _minimum_donations, "insufficient amount");
+        (bool send, ) = address(this).call{value: msg.value}("");
+        require(send, "failed to send ETH");
+        _manager.donate(msg.sender, id, msg.value);
+    }
+
+    function transferDonations(
+        uint256 id,
+        address beneficiary
+    ) public nonReentrant onlyOwner {
+        uint256 amount = _manager.currentAmount(id);
+        _manager.setWithdrawn(id, beneficiary);
+        (bool send, ) = payable(msg.sender).call{value: amount}("");
+        require(send, "faild to send ETH");
+    }
+
+    receive() external payable {}
 }
