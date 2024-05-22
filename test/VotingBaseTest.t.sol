@@ -12,10 +12,11 @@ contract VotingBaseTest is Test {
     address member1 = address(2);
     address member2 = address(3);
     address member3 = address(4);
+    address dataFeedAddress = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419; // Mock data feed address
 
     function setUp() public {
         votingToken = new VotingToken();
-        votingBase = new VotingBase(votingToken);
+        votingBase = new VotingBase(votingToken, dataFeedAddress);
 
         // 确保调用 transferOwnership 的是当前的所有者。
         vm.startPrank(address(this)); // `address(this)` 表示当前测试合约的地址
@@ -78,7 +79,8 @@ contract VotingBaseTest is Test {
             1653897600, //beginTime
             16999999999, //endTime
             7 days, //duration
-            address(0)
+            address(5),
+            50
         );
         vm.stopPrank();
 
@@ -111,7 +113,8 @@ contract VotingBaseTest is Test {
             1653897600, //beginTime
             16999999999, //endTime
             7 days, //duration
-            address(0)
+            address(5),
+            50
         );
         vm.stopPrank();
 
@@ -147,7 +150,8 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            address(0)
+            address(5),
+            50
         );
         vm.stopPrank();
 
@@ -193,7 +197,8 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            makeAddr("beneficiary")
+            makeAddr("beneficiary"),
+            50
         );
 
         votingBase.createProposal(
@@ -202,7 +207,8 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            makeAddr("beneficiary")
+            makeAddr("beneficiary"),
+            50
         );
         vm.stopPrank();
 
@@ -251,7 +257,8 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            address(0)
+            address(5),
+            50
         );
         vm.stopPrank();
 
@@ -279,7 +286,8 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            address(0)
+            address(5),
+            50
         );
         vm.stopPrank();
 
@@ -323,7 +331,8 @@ contract VotingBaseTest is Test {
             1653897600,
             16999999999,
             7 days, //duration
-            address(0)
+            address(5),
+            50
         );
         vm.stopPrank();
         // 成员投票

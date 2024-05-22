@@ -12,7 +12,7 @@ import "./core/PriceConverter.sol";
 
 contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     // TODO: 用DataFeed获取价格，设置一个minimum donation
-    uint256 private _minimum_donations;
+    //uint256 private _minimum_donations;
     PriceConverter private _price;
     /**
      * @dev 计数器，用于createProposal时候新增id
@@ -41,6 +41,8 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     mapping(address => bool) public isMember;
     mapping(address => uint256) private memberIndex; // 新增：成员索引映射
     mapping(uint256 => uint256) public proposalEndTimes; // 新增：提案结束时间
+    mapping(uint256 => uint256) private _minimum_donations; // 将minimum donations设置为每个提案的
+    
 
     event MemberAdded(address member);
     event MemberRemoved(address member);
@@ -54,13 +56,11 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     constructor(
-        VotingToken token,
-        uint256 minDonationInUSD,
+        VotingToken token, 
         address dataFeddAddr
     ) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
         _voting_Token = token;
         _manager = new CampaignManager();
-        _minimum_donations = minDonationInUSD * 10 ** 18;
         _price = new PriceConverter(dataFeddAddr);
     }
 
@@ -98,8 +98,10 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 targetAmount, // 目标金额
         uint256 beginTime, // 捐款开始时间
         uint256 endTime, //捐款结束时间
-        uint256 duration,
-        address beneficiary // 受益人
+        uint256 duration, //持续的日期
+        address beneficiary, // 受益人
+        uint256 minDonationInUSD // 最小捐款数
+
     ) public onlyMember {
         uint256 proposalId = _tokenIds;
         _tokenIds++;
@@ -121,6 +123,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         });
 
         proposalEndTimes[proposalId] = block.timestamp + duration;
+        _minimum_donations[proposalId] = minDonationInUSD * 10 ** 18;
 
         _mint(msg.sender, proposalId);
         // _setTokenURI(proposalId, tokenURI);
@@ -230,7 +233,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
     function donate(uint256 id) public payable nonReentrant {
         require(
-            msg.value >= _price.USD(_minimum_donations),
+            msg.value >= _price.USD(_minimum_donations[id]),
             "you need to send more ETH"
         );
         (bool send, ) = address(this).call{value: msg.value}("");
