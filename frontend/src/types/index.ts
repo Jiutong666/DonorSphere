@@ -37,3 +37,12 @@ export interface OrgInfo {
   picture: string;
   createTime: string;
 }
+
+export interface DonateTable {
+  key: string;
+  donatedAt: string;
+  donor: string;
+  amount: string;
+  usdValue: string;
+  tx?: string;
+}

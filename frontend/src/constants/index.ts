@@ -1,4 +1,4 @@
-import { HomeCard, ProjectInfo } from '@/types';
+import { DonateTable, HomeCard, ProjectInfo } from '@/types';
 
 export const homeCardList: HomeCard[] = [
   {
@@ -120,5 +120,104 @@ export const testProjectInfo: ProjectInfo[] = [
     targetAmount: '1111.33',
     raisedAmount: '3889',
     beneficiary: '0x000003kdkkfg',
+  },
+];
+
+export const rows: DonateTable[] = [
+  {
+    key: '1',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '2',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '3',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '4',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '5',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '6',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '7',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '8',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '9',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '10',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+  {
+    key: '11',
+    donatedAt: '2022/22/02',
+    donor: '333',
+    amount: '5555',
+    usdValue: '22222',
+  },
+];
+
+export const columns = [
+  {
+    key: 'donatedAt',
+    label: 'Donated at',
+  },
+  {
+    key: 'donor',
+    label: 'Donor',
+  },
+  {
+    key: 'amount',
+    label: 'Amount',
+  },
+  {
+    key: 'usdValue',
+    label: 'USD Value',
   },
 ];
