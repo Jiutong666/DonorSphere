@@ -62,10 +62,17 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         _voting_Token = token;
         _manager = new CampaignManager();
         _price = new PriceConverter(dataFeddAddr);
+
+        git
+        isMember[initialOwner] = true;
+        members.push(initialOwner);
+        memberIndex[initialOwner] = members.length - 1;
+        emit MemberAdded(initialOwner);
     }
 
     //添加成员
     function addMember(address _member) external onlyOwner {
+        require(members.length < 100, "Cannot add more than 100 members");
         require(!isMember[_member], "Member already exists");
         isMember[_member] = true;
         members.push(_member);
