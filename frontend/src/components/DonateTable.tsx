@@ -1,9 +1,9 @@
-import { columns, rows } from '@/constants';
+import { columns } from '@/constants';
 import * as types from '@/types';
 import { Link, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { Key, useCallback, useMemo, useState } from 'react';
 
-export default function DonateTable() {
+export default function DonateTable({ rows }: { rows: types.DonateTable[] }) {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   const pages = Math.ceil(rows.length / rowsPerPage);
@@ -12,7 +12,7 @@ export default function DonateTable() {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
     return rows.slice(start, end);
-  }, [page]);
+  }, [page, rows]);
 
   const renderCell = useCallback((tableName: types.DonateTable, columnKey: Key) => {
     const cellValue = tableName[columnKey as keyof types.DonateTable];

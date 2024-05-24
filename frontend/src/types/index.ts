@@ -17,6 +17,8 @@ export interface ProjectInfo {
   founder: string;
   createTime?: string;
   endTime?: string;
+  contributors?: number;
+  founderAvatar?: string;
 }
 
 export interface UserInfo {
