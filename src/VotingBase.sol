@@ -248,6 +248,9 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         _manager.setWithdrawn(id, beneficiary);
         (bool send, ) = beneficiary.call{value: amount}("");
         require(send, "faild to send ETH");
+
+        // 更新提案状态为资金已提取
+        proposal.donationWithdrawn = true;
     }
 
     receive() external payable {}
