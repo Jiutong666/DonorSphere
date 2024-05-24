@@ -109,7 +109,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 duration, //持续的日期
         address beneficiary, // 受益人
         uint256 minDonationInUSD // 最小捐款数
-    ) public onlyMember {
+    ) public onlyMember returns (uint256) {
         _tokenIds++;
         uint256 proposalId = _tokenIds;
 
@@ -137,6 +137,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
         distributeTokens();
         emit ProposalCreated(proposalId, name, msg.sender);
+        return proposalId;
     }
 
     /**
