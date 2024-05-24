@@ -42,7 +42,6 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     mapping(address => uint256) private memberIndex; // 新增：成员索引映射
     mapping(uint256 => uint256) public proposalEndTimes; // 新增：提案结束时间
     mapping(uint256 => uint256) private _minimum_donations; // 将minimum donations设置为每个提案的
-    
 
     event MemberAdded(address member);
     event MemberRemoved(address member);
@@ -56,7 +55,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     constructor(
-        VotingToken token, 
+        VotingToken token,
         address dataFeddAddr
     ) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
         _voting_Token = token;
@@ -101,7 +100,6 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 duration, //持续的日期
         address beneficiary, // 受益人
         uint256 minDonationInUSD // 最小捐款数
-
     ) public onlyMember {
         uint256 proposalId = _tokenIds;
         _tokenIds++;
@@ -236,18 +234,19 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
             msg.value >= _price.USD(_minimum_donations[id]),
             "you need to send more ETH"
         );
-        (bool send, ) = address(this).call{value: msg.value}("");
-        require(send, "failed to send ETH");
+
         _manager.donate(msg.sender, id, msg.value);
     }
 
-    function transferDonations(
-        uint256 id,
-        address beneficiary
-    ) public nonReentrant onlyOwner {
+    function transferDonations(uint256 id) public nonReentrant onlyOwner {
+        DataType.CampaignInfo storage proposal = proposals[id];
+        require(proposal.currentAmount > 0, "No funds to transfer");
+
+        address payable beneficiary = payable(proposal.beneficiary);
+
         uint256 amount = _manager.currentAmount(id);
         _manager.setWithdrawn(id, beneficiary);
-        (bool send, ) = payable(msg.sender).call{value: amount}("");
+        (bool send, ) = beneficiary.call{value: amount}("");
         require(send, "faild to send ETH");
     }
 

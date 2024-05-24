@@ -8,11 +8,13 @@ import "../src/VotingToken.sol";
 contract VotingBaseTest is Test {
     VotingBase votingBase;
     VotingToken votingToken;
+    PriceConverter priceConverter;
     address owner = address(1);
     address member1 = address(2);
     address member2 = address(3);
     address member3 = address(4);
     address dataFeedAddress = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419; // Mock data feed address
+    address public nonMember = address(6);
 
     function setUp() public {
         votingToken = new VotingToken();
@@ -349,5 +351,26 @@ contract VotingBaseTest is Test {
 
         vm.expectRevert("Voting period has not ended yet");
         votingBase.checkPass(0);
+    }
+
+    function testDonate() public {
+        // 创建提案
+        vm.startPrank(member1);
+        votingBase.createProposal(
+            "Test Proposal",
+            100,
+            1653897600,
+            16999999999,
+            7 days, //duration
+            address(5),
+            50
+        );
+        vm.stopPrank();
+
+        //......
+
+
+
+
     }
 }
