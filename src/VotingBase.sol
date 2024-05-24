@@ -63,7 +63,6 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         _manager = new CampaignManager();
         _price = new PriceConverter(dataFeddAddr);
 
-        git
         isMember[initialOwner] = true;
         members.push(initialOwner);
         memberIndex[initialOwner] = members.length - 1;
@@ -129,7 +128,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         });
 
         proposalEndTimes[proposalId] = block.timestamp + duration;
-        _minimum_donations[proposalId] = minDonationInUSD * 10 ** 18;
+        _minimum_donations[proposalId] = _price.USD(minDonationInUSD);
 
         _mint(msg.sender, proposalId);
         // _setTokenURI(proposalId, tokenURI);
@@ -239,7 +238,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
     function donate(uint256 id) public payable nonReentrant {
         require(
-            msg.value >= _price.USD(_minimum_donations[id]),
+            msg.value >= _minimum_donations[id],
             "you need to send more ETH"
         );
 
