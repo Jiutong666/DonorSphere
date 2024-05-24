@@ -56,8 +56,9 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
     constructor(
         VotingToken token,
-        address dataFeddAddr
-    ) Ownable(msg.sender) ERC721("ProposalToken", "PROP") {
+        address dataFeddAddr,
+        address initialOwner
+    ) Ownable(initialOwner) ERC721("ProposalToken", "PROP") {
         _voting_Token = token;
         _manager = new CampaignManager();
         _price = new PriceConverter(dataFeddAddr);

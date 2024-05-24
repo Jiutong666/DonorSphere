@@ -6,9 +6,8 @@ import "../src/VotingBase.sol";
 import "../src/VotingToken.sol";
 
 contract VotingBaseTest is Test {
-    VotingBase votingBase;
     VotingToken votingToken;
-    PriceConverter priceConverter;
+    VotingBase votingBase;
     address owner = address(1);
     address member1 = address(2);
     address member2 = address(3);
@@ -18,7 +17,7 @@ contract VotingBaseTest is Test {
 
     function setUp() public {
         votingToken = new VotingToken();
-        votingBase = new VotingBase(votingToken, dataFeedAddress);
+        votingBase = new VotingBase(votingToken, dataFeedAddress,address(this));
 
         // 确保调用 transferOwnership 的是当前的所有者。
         vm.startPrank(address(this)); // `address(this)` 表示当前测试合约的地址
@@ -351,26 +350,5 @@ contract VotingBaseTest is Test {
 
         vm.expectRevert("Voting period has not ended yet");
         votingBase.checkPass(0);
-    }
-
-    function testDonate() public {
-        // 创建提案
-        vm.startPrank(member1);
-        votingBase.createProposal(
-            "Test Proposal",
-            100,
-            1653897600,
-            16999999999,
-            7 days, //duration
-            address(5),
-            50
-        );
-        vm.stopPrank();
-
-        //......
-
-
-
-
     }
 }
