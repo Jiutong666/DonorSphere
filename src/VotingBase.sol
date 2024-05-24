@@ -103,7 +103,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
      */
     function createProposal(
         string memory name,
-        uint256 targetAmount, // 目标金额
+        uint256 targetAmount, // 目标金额(单位USD)
         uint256 beginTime, // 捐款开始时间
         uint256 endTime, //捐款结束时间
         uint256 duration, //持续的日期
@@ -121,7 +121,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
             voteCount: 0,
             againstCount: 0,
             passed: false,
-            targetAmount: targetAmount,
+            targetAmount: _price.USD(targetAmount),
             currentAmount: 0,
             beginTime: beginTime,
             endTime: endTime,

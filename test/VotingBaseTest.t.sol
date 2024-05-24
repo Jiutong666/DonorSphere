@@ -81,7 +81,7 @@ contract VotingBaseTest is Test {
     function testProposalCreation() public {
         // 成员1创建提案
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id = votingBase.createProposal(
             "Improve Voting System",
             100, //targetAmount
             1653897600, //beginTime
@@ -91,7 +91,7 @@ contract VotingBaseTest is Test {
             50
         );
         vm.stopPrank();
-        uint256 id = 1;
+
         // 获取提案信息并进行基本验证
         DataType.CampaignInfo memory proposal = votingBase.getProposal(id);
         assertEq(proposal.name, "Improve Voting System");
@@ -115,7 +115,7 @@ contract VotingBaseTest is Test {
 
         // 模拟成员创建提案
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id = votingBase.createProposal(
             "Improve Voting System777",
             100, //targetAmount
             1653897600, //beginTime
@@ -127,7 +127,6 @@ contract VotingBaseTest is Test {
         vm.stopPrank();
 
         // 获取提案信息并进行基本验证
-        uint256 id = 1;
         DataType.CampaignInfo memory proposal = votingBase.getProposal(id);
         assertEq(proposal.name, "Improve Voting System777");
 
@@ -153,7 +152,7 @@ contract VotingBaseTest is Test {
     function testVoting1() public {
         // 创建提案
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id = votingBase.createProposal(
             "Improve Voting System 1",
             100,
             1653897600,
@@ -166,19 +165,19 @@ contract VotingBaseTest is Test {
 
         // 成员投票
         vm.startPrank(member1);
-        votingBase.vote(0, true); // member1 投支持票
+        votingBase.vote(id, true); // member1 投支持票
         vm.stopPrank();
 
         vm.startPrank(member2);
-        votingBase.vote(0, false); // member2 投反对票
+        votingBase.vote(id, false); // member2 投反对票
         vm.stopPrank();
 
         vm.startPrank(member3);
-        votingBase.vote(0, false); // member3 投反对票
+        votingBase.vote(id, false); // member3 投反对票
         vm.stopPrank();
 
         // 获取提案信息并进行基本验证
-        DataType.CampaignInfo memory proposal = votingBase.getProposal(0);
+        DataType.CampaignInfo memory proposal = votingBase.getProposal(id);
         assertEq(proposal.voteCount, 1); //一个赞成票
         assertEq(proposal.againstCount, 2); //两个反对票
 
@@ -187,11 +186,11 @@ contract VotingBaseTest is Test {
 
         // 检查投票结果
         vm.startPrank(member1);
-        votingBase.checkProposal(0);
+        votingBase.checkProposal(id);
         vm.stopPrank();
 
         // 断言：结果没通过
-        assertFalse(votingBase.checkPass(0));
+        assertFalse(votingBase.checkPass(id));
     }
 
     /**
@@ -200,7 +199,7 @@ contract VotingBaseTest is Test {
     function testVoting2() public {
         // 创建提案
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id1 = votingBase.createProposal(
             "Improve Voting System 2",
             100,
             1653897600,
@@ -210,7 +209,7 @@ contract VotingBaseTest is Test {
             50
         );
 
-        votingBase.createProposal(
+        uint256 id2 = votingBase.createProposal(
             "Improve Voting System 3",
             100,
             1653897600,
@@ -223,19 +222,19 @@ contract VotingBaseTest is Test {
 
         // 成员投票
         vm.startPrank(member1);
-        votingBase.vote(1, true); // member1 投支持票
+        votingBase.vote(id2, true); // member1 投支持票
         vm.stopPrank();
 
         vm.startPrank(member2);
-        votingBase.vote(1, true); // member2 投支持票
+        votingBase.vote(id2, true); // member2 投支持票
         vm.stopPrank();
 
         vm.startPrank(member3);
-        votingBase.vote(1, false); // member3 投反对票
+        votingBase.vote(id2, false); // member3 投反对票
         vm.stopPrank();
 
         // 获取提案信息并进行基本验证
-        DataType.CampaignInfo memory proposal = votingBase.getProposal(1);
+        DataType.CampaignInfo memory proposal = votingBase.getProposal(id2);
         assertEq(proposal.voteCount, 2); //两个赞成票
         assertEq(proposal.againstCount, 1); //一个反对票
 
@@ -244,14 +243,14 @@ contract VotingBaseTest is Test {
 
         // 检查投票结果
         vm.startPrank(member1);
-        votingBase.checkProposal(1);
+        votingBase.checkProposal(id2);
         vm.stopPrank();
 
         // 断言：结果通过
-        assertTrue(votingBase.checkPass(1));
+        assertTrue(votingBase.checkPass(id2));
 
         // 检查第一个提案
-        assertFalse(votingBase.checkPass(0)); //结果没通过
+        assertFalse(votingBase.checkPass(id1)); //结果没通过
     }
 
     /**
@@ -260,7 +259,7 @@ contract VotingBaseTest is Test {
     function testAlreadyVoting() public {
         // 创建提案
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id = votingBase.createProposal(
             "Improve Voting System",
             100,
             1653897600,
@@ -273,13 +272,13 @@ contract VotingBaseTest is Test {
 
         // 投票
         vm.startPrank(member1);
-        votingBase.vote(0, true); // member1 投支持票
+        votingBase.vote(id, true); // member1 投支持票
         vm.stopPrank();
 
         // 尝试重复投票
         vm.startPrank(member1);
         vm.expectRevert("Already voted");
-        votingBase.vote(0, true);
+        votingBase.vote(id, true);
         vm.stopPrank();
     }
 
@@ -289,7 +288,7 @@ contract VotingBaseTest is Test {
     function testVotingAndTokenBurn() public {
         // 设置初始条件，确保用户有足够的代币
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id = votingBase.createProposal(
             "Improve Voting System",
             100,
             1653897600,
@@ -306,7 +305,7 @@ contract VotingBaseTest is Test {
 
         // 投票操作
         vm.startPrank(member1);
-        votingBase.vote(0, true); // member1 投支持票
+        votingBase.vote(id, true); // member1 投支持票
         vm.stopPrank();
 
         // 记录投票后的代币余额和总供应量
@@ -334,7 +333,7 @@ contract VotingBaseTest is Test {
     function testCheckProposalBeforeEnd() public {
         // 创建提案
         vm.startPrank(member1);
-        votingBase.createProposal(
+        uint256 id = votingBase.createProposal(
             "Test Proposal",
             100,
             1653897600,
@@ -345,7 +344,6 @@ contract VotingBaseTest is Test {
         );
         vm.stopPrank();
         // 成员投票
-        uint256 id = 1;
         vm.startPrank(member1);
         votingBase.vote(id, true);
         vm.stopPrank();
