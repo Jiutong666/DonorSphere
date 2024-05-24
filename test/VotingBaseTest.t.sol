@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "../src/VotingBase.sol";
 import "../src/VotingToken.sol";
+import "../src/core/PriceConverter.sol";
 
 contract VotingBaseTest is Test {
     VotingToken votingToken;
@@ -14,10 +15,16 @@ contract VotingBaseTest is Test {
     address member3 = address(4);
     address dataFeedAddress = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419; // Mock data feed address
     address public nonMember = address(6);
+    PriceConverter price;
 
     function setUp() public {
         votingToken = new VotingToken();
-        votingBase = new VotingBase(votingToken, dataFeedAddress,address(this));
+        votingBase = new VotingBase(
+            votingToken,
+            dataFeedAddress,
+            address(this)
+        );
+        price = new PriceConverter(dataFeedAddress);
 
         // 确保调用 transferOwnership 的是当前的所有者。
         vm.startPrank(address(this)); // `address(this)` 表示当前测试合约的地址
@@ -84,9 +91,9 @@ contract VotingBaseTest is Test {
             50
         );
         vm.stopPrank();
-
+        uint256 id = 1;
         // 获取提案信息并进行基本验证
-        DataType.CampaignInfo memory proposal = votingBase.getProposal(0);
+        DataType.CampaignInfo memory proposal = votingBase.getProposal(id);
         assertEq(proposal.name, "Improve Voting System");
         assertEq(proposal.creator, member1);
         assertEq(proposal.targetAmount, 100);
@@ -120,7 +127,8 @@ contract VotingBaseTest is Test {
         vm.stopPrank();
 
         // 获取提案信息并进行基本验证
-        DataType.CampaignInfo memory proposal = votingBase.getProposal(0);
+        uint256 id = 1;
+        DataType.CampaignInfo memory proposal = votingBase.getProposal(id);
         assertEq(proposal.name, "Improve Voting System777");
 
         // 验证代币是否被正确分配
@@ -337,8 +345,9 @@ contract VotingBaseTest is Test {
         );
         vm.stopPrank();
         // 成员投票
+        uint256 id = 1;
         vm.startPrank(member1);
-        votingBase.vote(0, true);
+        votingBase.vote(id, true);
         vm.stopPrank();
 
         // 模拟时间流逝
@@ -346,9 +355,9 @@ contract VotingBaseTest is Test {
 
         // 尝试在投票期未结束前查看结果，应抛出错误
         vm.expectRevert("Voting period has not ended yet");
-        votingBase.checkProposal(0);
+        votingBase.checkProposal(id);
 
         vm.expectRevert("Voting period has not ended yet");
-        votingBase.checkPass(0);
+        votingBase.checkPass(id);
     }
 }

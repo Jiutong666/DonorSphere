@@ -16,8 +16,10 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     PriceConverter private _price;
     /**
      * @dev 计数器，用于createProposal时候新增id
+     * 0 在 CampaignManager 用作 无效id
+     * mapping貌似不能真正的删除key，只能置0，所以把0当作 无效id
      */
-    uint256 private _tokenIds;
+    uint256 private _tokenIds = 0;
 
     /**
      * @dev 用于存储 DAO Token 合约实例的私有变量。
@@ -108,8 +110,8 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         address beneficiary, // 受益人
         uint256 minDonationInUSD // 最小捐款数
     ) public onlyMember {
-        uint256 proposalId = _tokenIds;
         _tokenIds++;
+        uint256 proposalId = _tokenIds;
 
         proposals[proposalId] = DataType.CampaignInfo({
             id: proposalId, //捐款id
