@@ -17,6 +17,8 @@ export interface ProjectInfo {
   founder: string;
   createTime?: string;
   endTime?: string;
+  contributors?: number;
+  founderAvatar?: string;
 }
 
 export interface UserInfo {
@@ -36,4 +38,13 @@ export interface OrgInfo {
   founders: string[];
   picture: string;
   createTime: string;
+}
+
+export interface DonateTable {
+  key: string;
+  donatedAt: string;
+  donor: string;
+  amount: string;
+  usdValue: string;
+  tx?: string;
 }

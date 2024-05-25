@@ -1,11 +1,12 @@
 import { ProjectInfo } from '@/types';
 import { Button, Card, CardBody, Image } from '@nextui-org/react';
+import Link from 'next/link';
 
 export default function ProjectCardItem({ ...props }: ProjectInfo) {
   return (
     <div className="flex justify-center flex-col items-center">
       <Card className="w-[22rem] h-[25rem] relative group overflow-hidden">
-        <Image alt="clouds" src={props.picture} width={352} height={176} className="object-contain" />
+        <Image alt="clouds" src={props.picture} width={352} height={176} className="object-cover overflow-hidden" />
         <CardBody className="px-[2rem] absolute top-[11rem] z-10 bg-white rounded-xl h-[18rem] transition-all duration-500 ease-in-out group-hover:top-[7rem]">
           <p className="font-semibold text-[1.5rem] overflow-hidden overflow-ellipsis whitespace-nowrap">
             {props.name}
@@ -22,7 +23,12 @@ export default function ProjectCardItem({ ...props }: ProjectInfo) {
               <p className="text-gray-500 text-[0.75rem]">Total Raised</p>
             </div>
           </div>
-          <Button color="primary" className="mt-4">
+          <Button
+            color="primary"
+            className="mt-4"
+            as={Link}
+            href={`/donate?projectId=${props.id}&projectTitle=${props.name}`}
+          >
             Donate
           </Button>
         </CardBody>
