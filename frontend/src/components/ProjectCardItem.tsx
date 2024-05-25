@@ -1,5 +1,6 @@
 import { ProjectInfo } from '@/types';
 import { Button, Card, CardBody, Image } from '@nextui-org/react';
+import Link from 'next/link';
 
 export default function ProjectCardItem({ ...props }: ProjectInfo) {
   return (
@@ -22,7 +23,12 @@ export default function ProjectCardItem({ ...props }: ProjectInfo) {
               <p className="text-gray-500 text-[0.75rem]">Total Raised</p>
             </div>
           </div>
-          <Button color="primary" className="mt-4">
+          <Button
+            color="primary"
+            className="mt-4"
+            as={Link}
+            href={`/donate?projectId=${props.id}&projectTitle=${props.name}`}
+          >
             Donate
           </Button>
         </CardBody>
