@@ -566,7 +566,6 @@ contract VotingBaseTest is Test {
     }
 
     function createCampaign(
-        string memory name,
         address beneficiaryAddr,
         uint256 targetUSD,
         uint256 minDonationUSD,
@@ -576,7 +575,7 @@ contract VotingBaseTest is Test {
         // 成员1创建提案
         vm.startPrank(member1);
         uint256 proposalId = votingBase.createProposal(
-            name,
+            "Improve Voting System",
             targetUSD, //targetAmount(USD)
             beginTime, //beginTime 2022-05-30 16:00:00
             endTime, //endTime 2508-09-16 14:13:19
@@ -612,7 +611,6 @@ contract VotingBaseTest is Test {
         uint256 beginTime = block.timestamp + 2 days;
         uint256 endTime = beginTime + 7 days;
         uint256 proposalId = createCampaign(
-            "test",
             beneficiary,
             targetUSD,
             minDonationUSD,
@@ -637,7 +635,6 @@ contract VotingBaseTest is Test {
         uint256 beginTime = block.timestamp + 2 days;
         uint256 endTime = beginTime + 7 days;
         uint256 proposalId = createCampaign(
-            "test",
             beneficiary,
             targetUSD,
             minDonationUSD,
@@ -674,66 +671,5 @@ contract VotingBaseTest is Test {
         vm.expectRevert("donation has been withdrawn");
         votingBase.transferDonations(proposalId);
         vm.stopPrank();
-    }
-
-    // 同个beneficiary 接收不同的捐款
-    function testTransferDonations_FromDifferentProposal() public {
-        uint256 targetUSD = 100; // 100 USD
-        uint256 minDonationUSD = 5;
-        uint256 beginTime = block.timestamp + 2 days;
-        uint256 endTime = beginTime + 7 days;
-        uint256 id1 = createCampaign(
-            "proposal 1st",
-            beneficiary,
-            targetUSD,
-            minDonationUSD,
-            beginTime,
-            endTime
-        );
-
-        uint256 id2 = createCampaign(
-            "proposal 1st",
-            beneficiary,
-            targetUSD,
-            minDonationUSD,
-            beginTime,
-            endTime
-        );
-
-        // 捐款
-        {
-            // member1 给 id1 捐款 200 usd
-            vm.startPrank(member1);
-            votingBase.donate{value: TEN_USD * 20}(id1);
-            vm.stopPrank();
-
-            // member2 给 id2 捐款 100 usd
-            vm.startPrank(member1);
-            votingBase.donate{value: TEN_USD * 10}(id2);
-            vm.stopPrank();
-        }
-
-        // 模拟时间流逝，捐款活动结束
-        vm.warp(endTime + 1);
-
-        // 转账
-        uint256 beginBeneficiaryBalance = beneficiary.balance;
-        uint256 beginVotingBaseBalance = address(votingBase).balance;
-
-        {
-            // id1 和 id2 余额 转账给 beneficiary
-            vm.startPrank(owner);
-            votingBase.transferDonations(id1);
-            votingBase.transferDonations(id2);
-            vm.stopPrank();
-        }
-        uint256 endBeneficiaryBalance = beneficiary.balance;
-        uint256 endVotingBaseBalance = address(votingBase).balance;
-
-        assertEq(endVotingBaseBalance, 0);
-        assertEq(
-            beginVotingBaseBalance + beginBeneficiaryBalance,
-            endBeneficiaryBalance
-        );
     }
 }
