@@ -250,11 +250,10 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
     function transferDonations(uint256 id) public nonReentrant onlyOwner {
         DataType.CampaignInfo storage proposal = proposals[id];
-        require(proposal.currentAmount > 0, "No funds to transfer");
-
         address payable beneficiary = payable(proposal.beneficiary);
-
+        // setWithdrawn会清零amount，所以先取出来
         uint256 amount = _manager.currentAmount(id);
+        // 这里会检查 currentAmount 和 是否被提取过
         _manager.setWithdrawn(id, beneficiary);
         (bool send, ) = beneficiary.call{value: amount}("");
         require(send, "faild to send ETH");
