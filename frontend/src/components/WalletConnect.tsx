@@ -1,6 +1,8 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from '@nextui-org/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useDisconnect } from 'wagmi';
 export default function WalletConnect() {
+  const { disconnect } = useDisconnect();
   return (
     <div
       style={{
@@ -79,7 +81,13 @@ export default function WalletConnect() {
                         <DropdownItem key="settings">My Account</DropdownItem>
                         <DropdownItem key="team_settings">My Projects</DropdownItem>
                         <DropdownItem key="help_and_feedback">Create a Project</DropdownItem>
-                        <DropdownItem key="logout" color="danger">
+                        <DropdownItem
+                          key="logout"
+                          color="danger"
+                          onPress={(e) => {
+                            disconnect();
+                          }}
+                        >
                           Log Out
                         </DropdownItem>
                       </DropdownMenu>
