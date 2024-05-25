@@ -133,7 +133,7 @@ contract CampaignManager is Ownable, ReentrancyGuard {
         s_campaigns[campaignId].donationWithdrawn = true;
 
         uint256 amount = s_campaigns[campaignId].currentAmount;
-        require(amount > 0, "no amoutn to be send");
+        require(amount > 0, "no amount to be send");
         s_campaigns[campaignId].currentAmount = 0;
     }
 
