@@ -16,8 +16,10 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
     PriceConverter private _price;
     /**
      * @dev 计数器，用于createProposal时候新增id
+     * 0 在 CampaignManager 用作 无效id
+     * mapping貌似不能真正的删除key，只能置0，所以把0当作 无效id
      */
-    uint256 private _tokenIds;
+    uint256 private _tokenIds = 0;
 
     /**
      * @dev 用于存储 DAO Token 合约实例的私有变量。
@@ -63,7 +65,6 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         _manager = new CampaignManager();
         _price = new PriceConverter(dataFeddAddr);
 
-        git
         isMember[initialOwner] = true;
         members.push(initialOwner);
         memberIndex[initialOwner] = members.length - 1;
@@ -102,15 +103,15 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
      */
     function createProposal(
         string memory name,
-        uint256 targetAmount, // 目标金额
+        uint256 targetAmount, // 目标金额(单位USD)
         uint256 beginTime, // 捐款开始时间
         uint256 endTime, //捐款结束时间
         uint256 duration, //持续的日期
         address beneficiary, // 受益人
         uint256 minDonationInUSD // 最小捐款数
-    ) public onlyMember {
-        uint256 proposalId = _tokenIds;
+    ) public onlyMember returns (uint256) {
         _tokenIds++;
+        uint256 proposalId = _tokenIds;
 
         proposals[proposalId] = DataType.CampaignInfo({
             id: proposalId, //捐款id
@@ -120,7 +121,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
             voteCount: 0,
             againstCount: 0,
             passed: false,
-            targetAmount: targetAmount,
+            targetAmount: _price.USD(targetAmount),
             currentAmount: 0,
             beginTime: beginTime,
             endTime: endTime,
@@ -129,13 +130,14 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
         });
 
         proposalEndTimes[proposalId] = block.timestamp + duration;
-        _minimum_donations[proposalId] = minDonationInUSD * 10 ** 18;
+        _minimum_donations[proposalId] = _price.USD(minDonationInUSD);
 
         _mint(msg.sender, proposalId);
         // _setTokenURI(proposalId, tokenURI);
 
         distributeTokens();
         emit ProposalCreated(proposalId, name, msg.sender);
+        return proposalId;
     }
 
     /**
@@ -239,7 +241,7 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
     function donate(uint256 id) public payable nonReentrant {
         require(
-            msg.value >= _price.USD(_minimum_donations[id]),
+            msg.value >= _minimum_donations[id],
             "you need to send more ETH"
         );
 
@@ -248,11 +250,10 @@ contract VotingBase is ERC721URIStorage, Ownable, ReentrancyGuard {
 
     function transferDonations(uint256 id) public nonReentrant onlyOwner {
         DataType.CampaignInfo storage proposal = proposals[id];
-        require(proposal.currentAmount > 0, "No funds to transfer");
-
         address payable beneficiary = payable(proposal.beneficiary);
-
+        // setWithdrawn会清零amount，所以先取出来
         uint256 amount = _manager.currentAmount(id);
+        // 这里会检查 currentAmount 和 是否被提取过
         _manager.setWithdrawn(id, beneficiary);
         (bool send, ) = beneficiary.call{value: amount}("");
         require(send, "faild to send ETH");

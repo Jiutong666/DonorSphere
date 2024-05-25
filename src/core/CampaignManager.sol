@@ -107,7 +107,10 @@ contract CampaignManager is Ownable, ReentrancyGuard {
         uint256 id,
         uint256 value
     ) public CampaignExists(id) CampaignInPeriod(id) returns (bool) {
-        require(s_campaigns[id].currentAmount <= s_campaigns[id].targetAmount);
+        require(
+            s_campaigns[id].currentAmount <= s_campaigns[id].targetAmount,
+            "reached target amount"
+        );
         s_campaigns[id].currentAmount += value;
         s_donationsOf[donor][id] += value;
         return true;
@@ -130,7 +133,7 @@ contract CampaignManager is Ownable, ReentrancyGuard {
         s_campaigns[campaignId].donationWithdrawn = true;
 
         uint256 amount = s_campaigns[campaignId].currentAmount;
-        require(amount > 0, "no amoutn to be send");
+        require(amount > 0, "no amount to be send");
         s_campaigns[campaignId].currentAmount = 0;
     }
 
