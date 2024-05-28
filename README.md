@@ -1,4 +1,22 @@
 ## DonorSphere
+### Project Introduction
+DonorSphere provides donors a way to contribute to causes they care about while also ensuring their donations are used for their intended purpose, promoting safe, transparent giving.
+### Background of the project
+In today's society, we face global challenges, including poverty, disease, natural disasters, etc., as well as various donation needs for open source projects that require technical and resource support. At the same time, people are increasingly concerned about where their donations are going, and they want to ensure that their donations are actually used to solve problems and not be used for other purposes.
+The traditional donation model has many problems, such as high fees, opacity of fund flow, and low donation efficiency. Especially in the case of cross-border donations, involving multiple countries and different currency systems, handling fees and transfer times become issues. In addition, donors often cannot ensure that donations are ultimately used for the intended purposes, and it is difficult to understand the true needs and circumstances of beneficiaries.
+The emergence of blockchain technology provides an innovative way to solve these problems. First, the decentralized nature of blockchain makes the donation process more transparent and secure. Donation records are stored on an immutable blockchain and are publicly viewable, which helps ensure that donations are used for their intended purpose and reduces the possibility of fraud and improper use of donations. Secondly, due to the cross-border nature of blockchain, donors can donate through cryptocurrency, thereby avoiding the high cross-border transfer fees of traditional financial institutions, allowing more donations to be used directly to support charitable causes. In addition, smart contract technology can be used to automate the donation process, ensuring that donations are distributed according to the donor's wishes and automatically releasing funds when certain conditions are met.
+Therefore, we came up with the idea of ​​using blockchain technology to build DonorSphere. DonorSphere not only provides a secure and transparent donation environment, but also reduces the cost of cross-border donations and provides donors with more choice and control, thereby promoting the development of global philanthropy.
+### Project Objectives
+DonorSphere can achieve the following goals:
+- Provide a safe, transparent and efficient donation platform to directly donate funds to beneficiaries to avoid losses and delays in intermediate links.
+- Protect the rights and interests of donors and ensure that donations are used for intended charitable projects or personal needs.
+- Provide convenient financing channels to solve the problem of fund shortage of beneficiaries and promote the development of social undertakings and projects.
+- Achieve full tracking of donations, increase trust and transparency, and attract more donors to participate.
+- Attract global donors to participate, trade without borders, and accept multiple cryptocurrencies.
+
+
+
+## DonorSphere
 ### 项目介绍
 DonorSphere 为捐助者提供了一种为他们关心的事业做出贡献的方式，同时也确保他们的捐款用于其预期目的，促进安全、透明的捐赠。
 ### 项目背景
