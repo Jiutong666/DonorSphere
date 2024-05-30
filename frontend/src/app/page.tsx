@@ -2,6 +2,7 @@ import HomeCardItem from '@/components/HomeCardItem';
 import ProjectCardItem from '@/components/ProjectCardItem';
 import { homeCardList, testProjectInfo } from '@/constants';
 import { Button, Image } from '@nextui-org/react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -15,7 +16,13 @@ export default function Home() {
             <p className="text-left text-lg mb-6 w-[26rem]">
               Join our community-driven movement to transform the way we fund nonprofits and social causes.
             </p>
-            <Button className="bg-[--main-color] text-white font-bold text-[1.2rem] w-[12rem]">Create a Project</Button>
+            <Button
+              className="bg-[--main-color] text-white font-bold text-[1.2rem] w-[12rem]"
+              as={Link}
+              href="/project/create"
+            >
+              Create a Project
+            </Button>
           </div>
           <div>
             <Image alt="theme" src="home.svg" />

@@ -1,10 +1,13 @@
+'use client';
 import { ProjectInfo } from '@/types';
 import { Button, Card, CardBody, Image } from '@nextui-org/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ProjectCardItem({ ...props }: ProjectInfo) {
+  const router = useRouter();
   return (
-    <div className="flex justify-center flex-col items-center">
+    <div className="flex justify-center flex-col items-center" onClick={() => router.push(`/project/${props.id}`)}>
       <Card className="w-[22rem] h-[25rem] relative group overflow-hidden">
         <Image alt="clouds" src={props.picture} width={352} height={176} className="object-cover overflow-hidden" />
         <CardBody className="px-[2rem] absolute top-[11rem] z-10 bg-white rounded-xl h-[18rem] transition-all duration-500 ease-in-out group-hover:top-[7rem]">
