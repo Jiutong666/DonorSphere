@@ -7,7 +7,7 @@ import "../src/core/PriceConverter.sol";
 import "../src/VotingFactory.sol";
 
 contract DeployScript is Script {
-    function run() public {
+    function run() public returns(VotingBaseFactory){
         // 使用固定的数据馈送地址
         address dataFeedAddress = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
 
@@ -22,8 +22,10 @@ contract DeployScript is Script {
             dataFeedAddress
         );
 
-        console.log("VotingBaseFactory deployed at:", address(votingFactory));
+       // console.log("VotingBaseFactory deployed at:", address(votingFactory));
         
         vm.stopBroadcast();
+
+        return votingFactory;
     }
 }
