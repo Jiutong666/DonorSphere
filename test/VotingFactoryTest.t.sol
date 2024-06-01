@@ -56,6 +56,40 @@ contract VotingFactoryTest is Test {
         // 验证第二个 VotingBase 实例的所有者是否为 user2
         VotingBase campaign2 = VotingBase(payable(campaigns[1])); // 使用 payable 类型转换
         assertEq(campaign2.owner(), user2, "The owner of the second campaign should be user2");
+
+
     }
+
+    function testMember() public {
+        // 用户1创建第一个 VotingBase 实例
+        vm.startPrank(user1);
+        votingFactory.createCampaign();
+        vm.stopPrank();
+
+        // 用户2创建第二个 VotingBase 实例
+        vm.startPrank(user2);
+        votingFactory.createCampaign();
+        vm.stopPrank();
+
+        // 验证 newCampaign 是否正确添加到 allCampaigns 数组中
+        address[] memory campaigns = votingFactory.getAllCampaigns();
+        assertEq(campaigns.length, 2, "There should be two campaigns created");
+
+        // 验证第一个 VotingBase 实例的所有者是否为 user1
+        VotingBase campaign1 = VotingBase(payable(campaigns[0])); // 使用 payable 类型转换
+        assertEq(campaign1.owner(), user1, "The owner of the first campaign should be user1");
+
+        // 验证第一个 VotingBase 实例的 initialOwner 是否被添加为成员
+        assertTrue(campaign1.isMember(user1), "User1 should be a member of the first campaign");
+
+        // 验证第二个 VotingBase 实例的所有者是否为 user2
+        VotingBase campaign2 = VotingBase(payable(campaigns[1])); // 使用 payable 类型转换
+        assertEq(campaign2.owner(), user2, "The owner of the second campaign should be user2");
+
+        // 验证第二个 VotingBase 实例的 initialOwner 是否被添加为成员
+        assertTrue(campaign2.isMember(user2), "User2 should be a member of the second campaign");
+    }
+
+
 
 }
