@@ -88,6 +88,33 @@ contract VotingFactoryTest is Test {
 
         // 验证第二个 VotingBase 实例的 initialOwner 是否被添加为成员
         assertTrue(campaign2.isMember(user2), "User2 should be a member of the second campaign");
+
+
+        // 用户1创建一个 Proposal
+        vm.startPrank(user1);
+        campaign1.createProposal(
+            "Proposal 1",
+            100,
+            1717200000000,
+            1717372800000,
+            2,
+            0xdf95df1ae2e4FD7DB0f0b5afde35b13f37f7d156,
+            0
+        );
+        vm.stopPrank();
+
+        // 用户2创建一个 Proposal
+        vm.startPrank(user2);
+        campaign2.createProposal(
+            "Proposal 2",
+            100,
+            1717200000000,
+            1717372800000,
+            2,
+            0xdf95df1ae2e4FD7DB0f0b5afde35b13f37f7d156,
+            0
+        );
+        vm.stopPrank();
     }
 
 

@@ -9,7 +9,7 @@ import "../src/VotingFactory.sol";
 contract DeployScript is Script {
     function run() public returns(VotingBaseFactory){
         // 使用固定的数据馈送地址
-        address dataFeedAddress = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
+        address dataFeedAddress = 0x694AA1769357215DE4FAC081bf1f309aDC325306;
 
         vm.startBroadcast();
 
