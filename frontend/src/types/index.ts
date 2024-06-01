@@ -11,7 +11,7 @@ export interface ProjectInfo {
   description: string;
   ngoID?: string;
   picture: string;
-  raisedAmount: string;
+  raisedAmount?: string;
   targetAmount: string;
   beneficiary: string;
   founder: string;

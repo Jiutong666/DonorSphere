@@ -1,8 +1,10 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from '@nextui-org/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useRouter } from 'next/navigation';
 import { useDisconnect } from 'wagmi';
 export default function WalletConnect() {
   const { disconnect } = useDisconnect();
+  const router = useRouter();
   return (
     <div
       style={{
@@ -78,9 +80,17 @@ export default function WalletConnect() {
                         </Button>
                       </DropdownTrigger>
                       <DropdownMenu aria-label="Profile Actions" variant="flat" className="text-[1rem] font">
-                        <DropdownItem key="settings">My Account</DropdownItem>
-                        <DropdownItem key="team_settings">My Projects</DropdownItem>
-                        <DropdownItem key="help_and_feedback">Create a Project</DropdownItem>
+                        <DropdownItem key="myAccount">My Account</DropdownItem>
+                        <DropdownItem key="myProjects">My Projects</DropdownItem>
+                        <DropdownItem key="createProject">Create a Project</DropdownItem>
+                        <DropdownItem
+                          key="createCampaign"
+                          onPress={() => {
+                            router.push('/organization/create');
+                          }}
+                        >
+                          Create a Orginazation
+                        </DropdownItem>
                         <DropdownItem
                           key="logout"
                           color="danger"
