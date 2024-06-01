@@ -1,6 +1,6 @@
 import HomeCardItem from '@/components/HomeCardItem';
-import ProjectCardItem from '@/components/ProjectCardItem';
-import { homeCardList, testProjectInfo } from '@/constants';
+import HomeProjects from '@/components/HomeProjects';
+import { homeCardList } from '@/constants';
 import { Button, Image } from '@nextui-org/react';
 import Link from 'next/link';
 
@@ -40,24 +40,7 @@ export default function Home() {
           ))}
         </div>
       </div>
-      <div className="max-w-[114rem] w-full mt-[5rem] bg-white px-[20rem] py-10 shadow-lg">
-        <p className="font-bold text-[3rem] text-[#515768] mb-4">Projects</p>
-        <div className="flex flex-row flex-wrap gap-9 justify-between">
-          {testProjectInfo.map((item) => (
-            <ProjectCardItem
-              key={item.name}
-              id={item.id}
-              name={item.name}
-              description={item.description}
-              picture={item.picture}
-              founder={item.founder}
-              raisedAmount={item.raisedAmount}
-              targetAmount={item.targetAmount}
-              beneficiary={item.beneficiary}
-            />
-          ))}
-        </div>
-      </div>
+      <HomeProjects />
     </div>
   );
 }

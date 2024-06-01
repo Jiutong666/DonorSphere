@@ -2,12 +2,10 @@
 import { Proposal } from '@/types';
 import { Button, Card, CardBody, Image } from '@nextui-org/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function ProjectCardItem({ ...props }: Proposal) {
-  const router = useRouter();
   return (
-    <div className="flex justify-center flex-col items-center" onClick={() => router.push(`/project/${props.id}`)}>
+    <div className="flex justify-center flex-col items-center">
       <Card className="w-[22rem] h-[25rem] relative group overflow-hidden">
         <Image
           alt="clouds"
@@ -21,24 +19,20 @@ export default function ProjectCardItem({ ...props }: Proposal) {
             {props.name}
           </p>
           <p className="text-[--main-color] font-normal">{props.creator}</p>
-          <p className="mt-3 text-[#656c82] h-[4.5rem] overflow-hidden">Waiting</p>
+          <p className="mt-3 text-[#656c82] h-[4.5rem] overflow-hidden">{}</p>
           <div className="flex justify-between mt-3">
             <div>
               <p className="text-[1.5rem] font-bold">${`${props.targetAmount}`}</p>
               <p className="text-gray-500 text-[0.75rem]">Target Amount</p>
-            </div>
-            <div>
-              <p className="text-green-500 text-[1.5rem] font-normal">${`${props.currentAmount}`}</p>
-              <p className="text-gray-500 text-[0.75rem]">Total Raised</p>
             </div>
           </div>
           <Button
             color="primary"
             className="mt-4"
             as={Link}
-            href={`/donate?projectId=${props.id}&projectTitle=${props.name}`}
+            href={`/vote?projectId=${props.id}&projectTitle=${props.name}`}
           >
-            Donate
+            Vote
           </Button>
         </CardBody>
       </Card>
