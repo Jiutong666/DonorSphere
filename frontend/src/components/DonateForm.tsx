@@ -1,13 +1,16 @@
 'use client';
 import { VotingBase } from '@/abis/VotingBase';
 import { VotingBaseAddress } from '@/constants';
+
 import { Avatar, Button, Image, Input } from '@nextui-org/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { parseEther } from 'viem';
 import { useWriteContract } from 'wagmi';
 
 export default function DonateForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = searchParams.get('projectId');
   const projectTitle = searchParams.get('projectTitle');
 
@@ -19,8 +22,11 @@ export default function DonateForm() {
       abi: VotingBase,
       address: VotingBaseAddress,
       functionName: 'donate',
-      args: [BigInt(id as string)],
+      args: [BigInt((id as string).slice(0, -1))],
       value: parseEther(amount as string),
+    }).then(() => {
+      toast.success('投票成功！');
+      router.push('/');
     });
   };
 
