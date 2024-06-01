@@ -40,4 +40,5 @@ export const columns = [
   },
 ];
 
-export const VotingFactoryAddress = '0x8538a10Db0D1567b06bB55174d94668c8841E532';
+export const VotingFactoryAddress = '0x609B3ded277BcB642bFC36b9452Cfc859a75c3C1';
+export const VotingBaseAddress = '0xaF7f5a00C1E57f8Db7111272FAe001E3081c9934';
