@@ -25,7 +25,7 @@ export default function DonateForm() {
       args: [BigInt((id as string).slice(0, -1))],
       value: parseEther(amount as string),
     }).then(() => {
-      toast.success('投票成功！');
+      toast.success('捐款成功！');
       router.push('/');
     });
   };

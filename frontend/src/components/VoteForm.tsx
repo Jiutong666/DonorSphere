@@ -2,12 +2,14 @@
 import { VotingBase } from '@/abis/VotingBase';
 import { VotingBaseAddress } from '@/constants';
 import { Avatar, Button, Image, Radio, RadioGroup } from '@nextui-org/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useWriteContract } from 'wagmi';
 
 export default function VoteForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = searchParams.get('projectId');
   const projectTitle = searchParams.get('projectTitle');
   const [voteState, setVoteState] = useState(true);
@@ -15,13 +17,14 @@ export default function VoteForm() {
   const { writeContractAsync } = useWriteContract();
 
   const vote = () => {
-    console.log(voteState);
-
     writeContractAsync({
       abi: VotingBase,
       address: VotingBaseAddress,
       functionName: 'vote',
-      args: [BigInt(id as string), voteState],
+      args: [BigInt((id as string).slice(0, -1)), voteState],
+    }).then(() => {
+      toast.success('投票成功');
+      router.push('/');
     });
   };
 
