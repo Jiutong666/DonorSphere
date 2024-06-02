@@ -54,7 +54,7 @@ export interface Proposal {
   name: string;
   beneficiary: `0x${string}`;
   targetAmount: bigint;
-  currentAmount: bigint;
+  currentAmount?: bigint;
   beginTime?: bigint;
   endTime?: bigint;
   creator: `0x${string}`;
@@ -63,5 +63,4 @@ export interface Proposal {
   voteCount?: bigint;
   againstCount?: bigint;
   passed?: boolean;
-  length?: number;
 }

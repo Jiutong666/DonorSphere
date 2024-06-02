@@ -22,16 +22,11 @@ export default function ProjectCardItem({ ...props }: Proposal) {
           <p className="mt-3 text-[#656c82] h-[4.5rem] overflow-hidden">{}</p>
           <div className="flex justify-between mt-3">
             <div>
-              <p className="text-[1.5rem] font-bold">${`${props.targetAmount}`}</p>
+              <p className="text-[1.5rem] font-bold">${Number(props.targetAmount)}</p>
               <p className="text-gray-500 text-[0.75rem]">Target Amount</p>
             </div>
           </div>
-          <Button
-            color="primary"
-            className="mt-4"
-            as={Link}
-            href={`/vote?projectId=${props.id}&projectTitle=${props.name}`}
-          >
+          <Button color="primary" className="mt-4" as={Link} href={`/vote?projectId=${props.id}`}>
             Vote
           </Button>
         </CardBody>
