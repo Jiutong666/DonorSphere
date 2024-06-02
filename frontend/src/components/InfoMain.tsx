@@ -2,14 +2,16 @@
 import { VotingBase } from '@/abis/VotingBase';
 import { VotingBaseAddress } from '@/constants';
 import { Avatar, Button, Card, Divider, Image, Link } from '@nextui-org/react';
+import { useParams } from 'next/navigation';
 import { useReadContract } from 'wagmi';
 
-export default function InfoMain({ id }: { id: string }) {
+export default function InfoMain() {
+  const parmas = useParams();
   const result = useReadContract({
     abi: VotingBase,
     address: VotingBaseAddress,
     functionName: 'getProposal',
-    args: [BigInt(id)],
+    args: [BigInt(parmas.id as string)],
   });
 
   return (
@@ -46,7 +48,7 @@ export default function InfoMain({ id }: { id: string }) {
           color="primary"
           className="font-bold"
           as={Link}
-          href={`/donate?projectId=${id}&projectTitle=${result.data?.name}`}
+          href={`/donate?projectId=${parmas.id}&projectTitle=${result.data?.name}`}
         >
           DONATE
         </Button>
