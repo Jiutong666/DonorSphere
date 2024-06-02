@@ -8,13 +8,13 @@ export const ImageUploadPreview = ({
   imagePreview: string;
   setImagePreview: Function;
 }) => {
-  const fileInputRef = useRef();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDivClick = () => {
-    fileInputRef.current.click();
+    fileInputRef.current && fileInputRef.current.click();
   };
 
-  const handleImageChange = (event) => {
+  const handleImageChange = (event: any) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();

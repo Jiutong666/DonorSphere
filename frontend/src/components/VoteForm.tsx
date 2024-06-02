@@ -30,11 +30,11 @@ export default function VoteForm() {
       args: [BigInt(id as string), voteState],
     })
       .then(() => {
-        toast.success('投票成功');
+        toast.success('Voted successfully');
         router.push('/');
       })
       .catch(() => {
-        toast.error('交互已被拒绝');
+        toast.error('Interaction has been rejected');
       });
   };
 
