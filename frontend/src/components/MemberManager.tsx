@@ -3,7 +3,7 @@ import { VotingBase } from '@/abis/VotingBase';
 import { VotingFactory } from '@/abis/VotingFactory';
 import { VotingFactoryAddress } from '@/constants';
 
-import { Button, Input, Radio, RadioGroup } from '@nextui-org/react';
+import { Button, Divider, Input, Radio, RadioGroup } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useReadContract, useWriteContract } from 'wagmi';
@@ -12,6 +12,7 @@ export default function MemberManager() {
   const [memberAddress, setMeberAddress] = useState<`0x${string}`>('0xcc0030860577CB392C2104E1AA3EccD17181588C');
   const [contractAddress, setContractAddress] = useState<`0x${string}`>('0xaF7f5a00C1E57f8Db7111272FAe001E3081c9934');
   const [addresses, setAddresses] = useState<string[]>(['0xaF7f5a00C1E57f8Db7111272FAe001E3081c9934']);
+  const [proposalId, setProposalId] = useState<number>();
 
   const { writeContractAsync } = useWriteContract();
 
@@ -55,6 +56,21 @@ export default function MemberManager() {
         toast.error('Interaction has been rejected');
       });
   };
+
+  const checkProposal = () => {
+    writeContractAsync({
+      abi: VotingBase,
+      address: contractAddress,
+      functionName: 'checkProposal',
+      args: [BigInt(proposalId)],
+    })
+      .then(() => {
+        toast.success('Removed member');
+      })
+      .catch(() => {
+        toast.error('Interaction has been rejected');
+      });
+  };
   return (
     <div className="flex flex-col gap-4 border-1 p-5 rounded-xl">
       <RadioGroup
@@ -86,6 +102,20 @@ export default function MemberManager() {
         <Button onClick={addMember}>Add Member</Button>
         <Button onClick={removeMember}>Remove Member</Button>
       </div>
+      <Divider />
+      <Input
+        label="Proposal ID"
+        type="number"
+        labelPlacement="outside"
+        placeholder="Please enter proposal id"
+        isRequired
+        onChange={(e) => {
+          setProposalId(Number(e.target.value));
+        }}
+      />
+      <Button onClick={checkProposal} color="primary">
+        Check Proposal
+      </Button>
     </div>
   );
 }
