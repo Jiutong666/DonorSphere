@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useWriteContract } from 'wagmi';
-import MemberManager from './MemberManager';
 
 export default function ProjectForm() {
   const router = useRouter();
@@ -46,7 +45,6 @@ export default function ProjectForm() {
 
   return (
     <form action={submitHandler} className="flex flex-col gap-6">
-      <MemberManager />
       <div>
         <p className="flex gap-1 mb-3">
           Project Image <span className="text-red-600">*</span>
