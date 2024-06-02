@@ -5,6 +5,7 @@ import { VotingFactoryAddress } from '@/constants';
 
 import { Button, Input, Radio, RadioGroup } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useReadContract, useWriteContract } from 'wagmi';
 
 export default function MemberManager() {
@@ -32,7 +33,13 @@ export default function MemberManager() {
       address: contractAddress,
       functionName: 'addMember',
       args: [memberAddress],
-    });
+    })
+      .then(() => {
+        toast.success('已移除成员');
+      })
+      .catch(() => {
+        toast.error('交互已被拒绝');
+      });
   };
   const removeMember = () => {
     writeContractAsync({
@@ -40,7 +47,13 @@ export default function MemberManager() {
       address: contractAddress,
       functionName: 'removeMember',
       args: [memberAddress],
-    });
+    })
+      .then(() => {
+        toast.success('已移除成员');
+      })
+      .catch(() => {
+        toast.error('交互已被拒绝');
+      });
   };
   return (
     <div className="flex flex-col gap-4 border-1 p-5 rounded-xl">

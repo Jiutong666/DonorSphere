@@ -19,7 +19,7 @@ export default function VoteForm() {
     abi: VotingBase,
     address: VotingBaseAddress,
     functionName: 'getProposal',
-    args: [BigInt((id as string).slice(0, -1))],
+    args: [BigInt(id as string)],
   });
 
   const vote = () => {
@@ -27,11 +27,15 @@ export default function VoteForm() {
       abi: VotingBase,
       address: VotingBaseAddress,
       functionName: 'vote',
-      args: [BigInt((id as string).slice(0, -1)), voteState],
-    }).then(() => {
-      toast.success('投票成功');
-      router.push('/');
-    });
+      args: [BigInt(id as string), voteState],
+    })
+      .then(() => {
+        toast.success('投票成功');
+        router.push('/');
+      })
+      .catch(() => {
+        toast.error('交互已被拒绝');
+      });
   };
 
   return (

@@ -9,8 +9,9 @@ export default function InfoMain({ id }: { id: string }) {
     abi: VotingBase,
     address: VotingBaseAddress,
     functionName: 'getProposal',
-    args: [BigInt(id.slice(0, -1))],
+    args: [BigInt(id)],
   });
+
   return (
     <div className="flex flex-row gap-6 h-[28rem] my-[4rem]">
       <div className="w-[70%] rounded-2xl border-1 relative overflow-hidden">

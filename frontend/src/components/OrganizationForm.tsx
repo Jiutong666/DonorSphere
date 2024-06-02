@@ -16,12 +16,14 @@ export default function OrganizationForm() {
   const { writeContractAsync } = useWriteContract();
 
   const submitHandler = async (formData: FormData) => {
-    writeContractAsync({ abi: VotingFactory, address: VotingFactoryAddress, functionName: 'createCampaign' }).then(
-      () => {
+    writeContractAsync({ abi: VotingFactory, address: VotingFactoryAddress, functionName: 'createCampaign' })
+      .then(() => {
         toast.success('创建成功');
         router.push('/');
-      }
-    );
+      })
+      .catch(() => {
+        toast.error('交互已被拒绝');
+      });
   };
 
   return (

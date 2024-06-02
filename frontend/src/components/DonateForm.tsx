@@ -24,10 +24,14 @@ export default function DonateForm() {
       functionName: 'donate',
       args: [BigInt((id as string).slice(0, -1))],
       value: parseEther(amount as string),
-    }).then(() => {
-      toast.success('捐款成功！');
-      router.push('/');
-    });
+    })
+      .then(() => {
+        toast.success('捐款成功！');
+        router.push('/');
+      })
+      .catch(() => {
+        toast.error('交互已被拒绝');
+      });
   };
 
   return (

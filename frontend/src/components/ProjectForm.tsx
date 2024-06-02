@@ -33,10 +33,14 @@ export default function ProjectForm() {
         beneficiary,
         BigInt(5),
       ],
-    }).then(() => {
-      toast.success('创建成功');
-      router.push('/');
-    });
+    })
+      .then(() => {
+        toast.success('创建成功');
+        router.push('/');
+      })
+      .catch(() => {
+        toast.error('交互已被拒绝');
+      });
   };
   const [imagePreview, setImagePreview] = useState('');
 
