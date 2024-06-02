@@ -17,7 +17,6 @@ export default function ProjectForm() {
     const beneficiary = formData.get('beneficiary') as `0x${string}`;
     const startDate = BigInt(new Date(formData.get('startDate') as string).getTime());
     const endDate = BigInt(new Date(formData.get('endDate') as string).getTime());
-    const duration = formData.get('duration');
 
     writeContractAsync({
       abi: VotingBase,
@@ -87,8 +86,8 @@ export default function ProjectForm() {
         placeholder="Please enter your target amount"
       />
 
-      <DatePicker label="Start Date" labelPlacement="outside" name="startDate" isRequired />
-      <DatePicker label="End Date" labelPlacement="outside" name="endDate" isRequired />
+      <DatePicker label="Start Date" labelPlacement="outside" name="startDate" isRequired granularity="second" />
+      <DatePicker label="End Date" labelPlacement="outside" name="endDate" isRequired granularity="second" />
 
       <Button type="submit" className="w-[11rem] bg-[--main-color] text-white font-bold mx-auto">
         Submit
