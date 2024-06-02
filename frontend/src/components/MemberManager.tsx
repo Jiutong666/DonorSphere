@@ -35,10 +35,10 @@ export default function MemberManager() {
       args: [memberAddress],
     })
       .then(() => {
-        toast.success('已移除成员');
+        toast.success('Member added successfully');
       })
       .catch(() => {
-        toast.error('交互已被拒绝');
+        toast.error('Interaction has been rejected');
       });
   };
   const removeMember = () => {
@@ -49,10 +49,10 @@ export default function MemberManager() {
       args: [memberAddress],
     })
       .then(() => {
-        toast.success('已移除成员');
+        toast.success('Removed member');
       })
       .catch(() => {
-        toast.error('交互已被拒绝');
+        toast.error('Interaction has been rejected');
       });
   };
   return (

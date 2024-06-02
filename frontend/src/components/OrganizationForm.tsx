@@ -18,11 +18,11 @@ export default function OrganizationForm() {
   const submitHandler = async (formData: FormData) => {
     writeContractAsync({ abi: VotingFactory, address: VotingFactoryAddress, functionName: 'createCampaign' })
       .then(() => {
-        toast.success('创建成功');
+        toast.success('Created Successfully');
         router.push('/');
       })
       .catch(() => {
-        toast.error('交互已被拒绝');
+        toast.error('Interaction has been rejected');
       });
   };
 

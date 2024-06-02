@@ -26,11 +26,11 @@ export default function DonateForm() {
       value: parseEther(amount as string),
     })
       .then(() => {
-        toast.success('捐款成功！');
+        toast.success('Donated Successfully');
         router.push('/');
       })
       .catch(() => {
-        toast.error('交互已被拒绝');
+        toast.error('Interaction has been rejected');
       });
   };
 

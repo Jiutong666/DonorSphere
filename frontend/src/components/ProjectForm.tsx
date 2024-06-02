@@ -34,11 +34,11 @@ export default function ProjectForm() {
       ],
     })
       .then(() => {
-        toast.success('创建成功');
+        toast.success('Created Successfully');
         router.push('/');
       })
       .catch(() => {
-        toast.error('交互已被拒绝');
+        toast.error('Interaction has been rejected');
       });
   };
   const [imagePreview, setImagePreview] = useState('');
