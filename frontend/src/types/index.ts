@@ -11,7 +11,7 @@ export interface ProjectInfo {
   description: string;
   ngoID?: string;
   picture: string;
-  raisedAmount: string;
+  raisedAmount?: string;
   targetAmount: string;
   beneficiary: string;
   founder: string;
@@ -47,4 +47,20 @@ export interface DonateTable {
   amount: string;
   usdValue: string;
   tx?: string;
+}
+
+export interface Proposal {
+  id: bigint;
+  name: string;
+  beneficiary: `0x${string}`;
+  targetAmount: bigint;
+  currentAmount?: bigint;
+  beginTime?: bigint;
+  endTime?: bigint;
+  creator: `0x${string}`;
+  donationWithdrawn?: boolean;
+  createTime?: bigint;
+  voteCount?: bigint;
+  againstCount?: bigint;
+  passed?: boolean;
 }

@@ -1,5 +1,5 @@
 'use client';
-import { rows } from '@/constants';
+
 import { Tab, Tabs } from '@nextui-org/react';
 import DonateCard from './DonateCard';
 import DonateTable from './DonateTable';
@@ -16,7 +16,7 @@ export default function InfoTabs({ description }: { description?: string }) {
         </Tab>
         <Tab key="Donations" title="Donations">
           <div className="flex flex-row gap-6">
-            <DonateTable rows={rows} />
+            <DonateTable rows={[]} />
             <DonateCard />
           </div>
         </Tab>

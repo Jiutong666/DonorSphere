@@ -1,11 +1,31 @@
 'use client';
+import { VotingFactory } from '@/abis/VotingFactory';
 import { ImageUploadPreview } from '@/components/ImageUploadPreview';
+import { VotingFactoryAddress } from '@/constants';
 import { Button, Input, Textarea } from '@nextui-org/react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useWriteContract } from 'wagmi';
 
 export default function OrganizationForm() {
-  const submitHandler = (formData: FormData) => {};
   const [imagePreview, setImagePreview] = useState('');
+
+  const router = useRouter();
+
+  const { writeContractAsync } = useWriteContract();
+
+  const submitHandler = async (formData: FormData) => {
+    writeContractAsync({ abi: VotingFactory, address: VotingFactoryAddress, functionName: 'createCampaign' })
+      .then(() => {
+        toast.success('Created Successfully');
+        router.push('/');
+      })
+      .catch(() => {
+        toast.error('Interaction has been rejected');
+      });
+  };
+
   return (
     <form action={submitHandler} className="flex flex-col gap-6">
       <Input

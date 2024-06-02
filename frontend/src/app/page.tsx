@@ -1,7 +1,8 @@
 import HomeCardItem from '@/components/HomeCardItem';
-import ProjectCardItem from '@/components/ProjectCardItem';
-import { homeCardList, testProjectInfo } from '@/constants';
+import HomeProjects from '@/components/HomeProjects';
+import { homeCardList } from '@/constants';
 import { Button, Image } from '@nextui-org/react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -15,7 +16,13 @@ export default function Home() {
             <p className="text-left text-lg mb-6 w-[26rem]">
               Join our community-driven movement to transform the way we fund nonprofits and social causes.
             </p>
-            <Button className="bg-[--main-color] text-white font-bold text-[1.2rem] w-[12rem]">Create a Project</Button>
+            <Button
+              className="bg-[--main-color] text-white font-bold text-[1.2rem] w-[12rem]"
+              as={Link}
+              href="/project/create"
+            >
+              Create a Project
+            </Button>
           </div>
           <div>
             <Image alt="theme" src="home.svg" />
@@ -33,24 +40,7 @@ export default function Home() {
           ))}
         </div>
       </div>
-      <div className="max-w-[114rem] w-full mt-[5rem] bg-white px-[20rem] py-10 shadow-lg">
-        <p className="font-bold text-[3rem] text-[#515768] mb-4">Projects</p>
-        <div className="flex flex-row flex-wrap gap-9 justify-between">
-          {testProjectInfo.map((item) => (
-            <ProjectCardItem
-              key={item.name}
-              id={item.id}
-              name={item.name}
-              description={item.description}
-              picture={item.picture}
-              founder={item.founder}
-              raisedAmount={item.raisedAmount}
-              targetAmount={item.targetAmount}
-              beneficiary={item.beneficiary}
-            />
-          ))}
-        </div>
-      </div>
+      <HomeProjects />
     </div>
   );
 }
