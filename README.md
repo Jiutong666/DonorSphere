@@ -24,7 +24,8 @@ $ forge build
 ### Test
 
 ```shell
-$ forge test
+$ make test-all
+
 ```
 
 ### Format
