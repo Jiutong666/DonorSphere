@@ -62,10 +62,10 @@ export default function MemberManager() {
       abi: VotingBase,
       address: contractAddress,
       functionName: 'checkProposal',
-      args: [BigInt(proposalId)],
+      args: [BigInt(proposalId as number)],
     })
       .then(() => {
-        toast.success('Removed member');
+        toast.success('Checked Proposal');
       })
       .catch(() => {
         toast.error('Interaction has been rejected');
